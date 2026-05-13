@@ -181,8 +181,9 @@ final class ClipboardManager {
         var shouldRemoveTempFile = true
 
         defer {
-            guard shouldRemoveTempFile, fileManager.fileExists(atPath: tempURL.path) else { return }
-            try? fileManager.removeItem(at: tempURL)
+            if shouldRemoveTempFile, fileManager.fileExists(atPath: tempURL.path) {
+                try? fileManager.removeItem(at: tempURL)
+            }
         }
 
         let created = fileManager.createFile(
