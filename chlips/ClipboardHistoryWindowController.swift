@@ -126,6 +126,14 @@ final class ClipboardHistoryWindowController: NSWindowController {
     }
 
     private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
+        if let shortcutIndex = shortcutIndex(for: event) {
+            guard shortcutIndex < filteredHistory.count else { return nil }
+            tableView.selectRowIndexes(IndexSet(integer: shortcutIndex), byExtendingSelection: false)
+            tableView.scrollRowToVisible(shortcutIndex)
+            pasteItem(filteredHistory[shortcutIndex])
+            return nil
+        }
+
         switch event.keyCode {
         case 36, 76: // Return / numpad Enter
             pasteSelected()
@@ -145,6 +153,25 @@ final class ClipboardHistoryWindowController: NSWindowController {
             return nil
         default:
             return event
+        }
+    }
+
+    private func shortcutIndex(for event: NSEvent) -> Int? {
+        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        guard modifiers.isEmpty else { return nil }
+
+        switch event.keyCode {
+        case 18, 83: return 0 // 1 / numpad 1
+        case 19, 84: return 1 // 2 / numpad 2
+        case 20, 85: return 2 // 3 / numpad 3
+        case 21, 86: return 3 // 4 / numpad 4
+        case 23, 87: return 4 // 5 / numpad 5
+        case 22, 88: return 5 // 6 / numpad 6
+        case 26, 89: return 6 // 7 / numpad 7
+        case 28, 91: return 7 // 8 / numpad 8
+        case 25, 92: return 8 // 9 / numpad 9
+        case 29, 82: return 9 // 0 / numpad 0
+        default: return nil
         }
     }
 
