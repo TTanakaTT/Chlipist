@@ -58,7 +58,8 @@ final class HotKeyManager {
             eventKind: UInt32(kEventHotKeyPressed)
         )
 
-        InstallApplicationEventHandler(
+        InstallEventHandler(
+            GetApplicationEventTarget(),
             chlipsHotKeyHandler,   // plain C function pointer — no captures
             1,
             &eventSpec,
