@@ -97,7 +97,9 @@ final class ClipboardManager {
             let data = try Data(contentsOf: fileURL)
             let decoded = try JSONDecoder().decode([String].self, from: data)
             history = Array(decoded.prefix(maxHistoryCount)).filter { !$0.isEmpty }
-        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileReadNoSuchFileError {
+        } catch let error as NSError
+            where error.domain == NSCocoaErrorDomain
+            && error.code == CocoaError.fileReadNoSuchFile.rawValue {
             return
         } catch {
             NSLog("ClipboardManager: failed to load persisted history (%@)", error.localizedDescription)
