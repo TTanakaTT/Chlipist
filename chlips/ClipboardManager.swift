@@ -134,13 +134,40 @@ final class ClipboardManager {
     }
 
     private func ensurePersistenceDirectoryExists(for fileURL: URL) throws {
+        let fileManager = FileManager.default
         let directoryURL = fileURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(
-            at: directoryURL,
-            withIntermediateDirectories: true,
-            attributes: [.posixPermissions: 0o700]
-        )
-        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+        var isDirectory: ObjCBool = false
+
+        if fileManager.fileExists(atPath: directoryURL.path, isDirectory: &isDirectory) {
+            guard isDirectory.boolValue else {
+                throw NSError(
+                    domain: NSCocoaErrorDomain,
+                    code: NSFileWriteInvalidFileNameError,
+                    userInfo: [NSFilePathErrorKey: directoryURL.path]
+                )
+            }
+
+            try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+            return
+        }
+
+        do {
+            try fileManager.createDirectory(
+                at: directoryURL,
+                withIntermediateDirectories: true,
+                attributes: [.posixPermissions: 0o700]
+            )
+        } catch let error as NSError
+            where error.domain == NSCocoaErrorDomain
+            && error.code == NSFileWriteFileExistsError {
+            var createdIsDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: directoryURL.path, isDirectory: &createdIsDirectory),
+                  createdIsDirectory.boolValue else {
+                throw error
+            }
+
+            try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+        }
     }
 
     private func removePersistedHistoryIfNeeded(at fileURL: URL) throws {
@@ -153,8 +180,12 @@ final class ClipboardManager {
         let fileManager = FileManager.default
         let directoryURL = fileURL.deletingLastPathComponent()
         let tempURL = directoryURL.appendingPathComponent(".\(persistenceFileName).\(UUID().uuidString).tmp")
+        var shouldRemoveTempFile = true
 
-        defer { try? fileManager.removeItem(at: tempURL) }
+        defer {
+            guard shouldRemoveTempFile, fileManager.fileExists(atPath: tempURL.path) else { return }
+            try? fileManager.removeItem(at: tempURL)
+        }
 
         let created = fileManager.createFile(
             atPath: tempURL.path,
@@ -176,5 +207,7 @@ final class ClipboardManager {
         } else {
             try fileManager.moveItem(at: tempURL, to: fileURL)
         }
+
+        shouldRemoveTempFile = false
     }
 }
