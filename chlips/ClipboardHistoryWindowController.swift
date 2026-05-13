@@ -29,7 +29,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
     private init() {
         let panel = HistoryPanel(
             contentRect: NSRect(x: 0, y: 0, width: 320, height: 380),
-            styleMask: [.titled, .closable, .resizable],
+            styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
@@ -37,7 +37,6 @@ final class ClipboardHistoryWindowController: NSWindowController {
         panel.level = .floating
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
-        panel.minSize = NSSize(width: 240, height: 200)
 
         super.init(window: panel)
         panel.delegate = self

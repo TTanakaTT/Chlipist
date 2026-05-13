@@ -12,6 +12,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // but we also set it programmatically for safety).
         NSApp.setActivationPolicy(.accessory)
 
+        enableLaunchAtLoginByDefault()
+
         setupStatusBarItem()
         checkAccessibilityPermission()
         ClipboardManager.shared.startMonitoring()
@@ -62,6 +64,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: - Launch at Login
+
+    private func enableLaunchAtLoginByDefault() {
+        let service = SMAppService.mainApp
+        guard service.status != .enabled else { return }
+
+        do {
+            try service.register()
+        } catch {
+            NSLog("AppDelegate: failed to enable launch at login by default (%@)", error.localizedDescription)
+        }
+    }
 
     @objc private func toggleLaunchAtLogin() {
         let service = SMAppService.mainApp
