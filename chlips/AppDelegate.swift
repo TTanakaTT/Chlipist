@@ -1,4 +1,5 @@
 import Cocoa
+import ApplicationServices
 import ServiceManagement
 
 class AppDelegate: NSObject, NSApplicationDelegate {
