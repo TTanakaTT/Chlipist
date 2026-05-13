@@ -330,7 +330,7 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
             .replacingOccurrences(of: "\n", with: "↵")
             .replacingOccurrences(of: "\r", with: "↵")
         cell?.textField?.stringValue = display
-        cell?.toolTip = raw.count > 200 ? String(raw.prefix(200)) + "…" : raw
+        cell?.toolTip = raw.count > 200 ? String(raw.prefix(200)) + " …" : raw
 
         return cell
     }
