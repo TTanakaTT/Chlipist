@@ -126,11 +126,13 @@ final class ClipboardHistoryWindowController: NSWindowController {
             closePanel()
             return nil
         case 125: // ↓
+            guard !history.isEmpty else { return nil }
             let next = min(tableView.selectedRow + 1, history.count - 1)
             tableView.selectRowIndexes(IndexSet(integer: next), byExtendingSelection: false)
             tableView.scrollRowToVisible(next)
             return nil
         case 126: // ↑
+            guard !history.isEmpty else { return nil }
             let prev = max(tableView.selectedRow - 1, 0)
             tableView.selectRowIndexes(IndexSet(integer: prev), byExtendingSelection: false)
             tableView.scrollRowToVisible(prev)
