@@ -33,13 +33,20 @@ Windows の「Win + V」と似た挙動を macOS で実現します。
 xcodebuild -project chlips.xcodeproj \
            -scheme chlips \
            -configuration Release \
+           -derivedDataPath ./.build \
            CODE_SIGN_IDENTITY="" \
            CODE_SIGNING_REQUIRED=NO \
            CODE_SIGNING_ALLOWED=NO \
            build
 ```
 
-ビルド成果物は `build/Release/chlips.app` に生成されます。
+ビルド成果物は `./.build/Build/Products/Release` に生成されます。
+
+```bash
+rsync -a ./.build/Build/Products/Release/chlips.app /Applications
+```
+
+Applicationsへ移動。
 
 ## 初回起動時の設定
 
