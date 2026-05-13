@@ -4,8 +4,7 @@ import Cocoa
 
 /// Floating panel that shows clipboard history.
 /// - Triggered by the global ⌘⇧V hotkey (or the status-bar menu).
-/// - Type to search / filter entries.
-/// - Arrow keys navigate the list; ↩ pastes the selected item; ⎋ closes.
+/// - Keys 1–9 and 0 directly paste the top-10 entry; ↩ pastes the selected item; ⎋ closes.
 final class ClipboardHistoryWindowController: NSWindowController {
 
     // MARK: - Singleton
@@ -14,14 +13,13 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
     // MARK: - UI Components
 
-    private var searchField: NSSearchField!
     private var tableView: NSTableView!
     private var scrollView: NSScrollView!
     private var countLabel: NSTextField!
 
     // MARK: - State
 
-    private var filteredHistory: [String] = []
+    private var history: [String] = []
     /// The app that was frontmost before we showed this panel.
     private var previousApp: NSRunningApplication?
     private var keyMonitor: Any?
@@ -30,7 +28,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
     private init() {
         let panel = HistoryPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 380),
             styleMask: [.titled, .closable, .resizable],
             backing: .buffered,
             defer: false
@@ -39,7 +37,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
         panel.level = .floating
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
-        panel.minSize = NSSize(width: 320, height: 260)
+        panel.minSize = NSSize(width: 240, height: 200)
 
         super.init(window: panel)
         panel.delegate = self
@@ -54,14 +52,6 @@ final class ClipboardHistoryWindowController: NSWindowController {
     private func setupUI() {
         guard let contentView = window?.contentView else { return }
         contentView.wantsLayer = true
-
-        // ── Search field ──────────────────────────────────────────────
-        searchField = NSSearchField()
-        searchField.placeholderString = "検索… (Search…)"
-        searchField.translatesAutoresizingMaskIntoConstraints = false
-        searchField.target = self
-        searchField.action = #selector(searchChanged)
-        contentView.addSubview(searchField)
 
         // ── Count label ───────────────────────────────────────────────
         countLabel = NSTextField(labelWithString: "")
@@ -99,12 +89,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
         // ── Auto Layout ───────────────────────────────────────────────
         NSLayoutConstraint.activate([
-            searchField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            searchField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            searchField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            searchField.heightAnchor.constraint(equalToConstant: 28),
-
-            scrollView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 8),
+            scrollView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             scrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             scrollView.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -6),
@@ -127,10 +112,10 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
     private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
         if let shortcutIndex = shortcutIndex(for: event) {
-            guard shortcutIndex < filteredHistory.count else { return nil }
+            guard shortcutIndex < history.count else { return nil }
             tableView.selectRowIndexes(IndexSet(integer: shortcutIndex), byExtendingSelection: false)
             tableView.scrollRowToVisible(shortcutIndex)
-            pasteItem(filteredHistory[shortcutIndex])
+            pasteItem(history[shortcutIndex])
             return nil
         }
 
@@ -142,7 +127,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
             closePanel()
             return nil
         case 125: // ↓
-            let next = min(tableView.selectedRow + 1, filteredHistory.count - 1)
+            let next = min(tableView.selectedRow + 1, history.count - 1)
             tableView.selectRowIndexes(IndexSet(integer: next), byExtendingSelection: false)
             tableView.scrollRowToVisible(next)
             return nil
@@ -182,12 +167,12 @@ final class ClipboardHistoryWindowController: NSWindowController {
         previousApp = NSWorkspace.shared.frontmostApplication
 
         // Reload data from the manager.
-        filteredHistory = ClipboardManager.shared.history
+        history = ClipboardManager.shared.history
         tableView.reloadData()
         updateCountLabel()
 
         // Select the first row.
-        if !filteredHistory.isEmpty {
+        if !history.isEmpty {
             tableView.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
             tableView.scrollRowToVisible(0)
         }
@@ -195,10 +180,9 @@ final class ClipboardHistoryWindowController: NSWindowController {
         // Position the panel near the mouse cursor.
         positionNearMouse()
 
-        searchField.stringValue = ""
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-        window?.makeFirstResponder(searchField)
+        window?.makeFirstResponder(tableView)
     }
 
     func closePanel() {
@@ -232,8 +216,8 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
     /// Pastes the currently selected row to the previous app.
     func pasteSelected() {
-        guard tableView.selectedRow >= 0, tableView.selectedRow < filteredHistory.count else { return }
-        pasteItem(filteredHistory[tableView.selectedRow])
+        guard tableView.selectedRow >= 0, tableView.selectedRow < history.count else { return }
+        pasteItem(history[tableView.selectedRow])
     }
 
     private func pasteItem(_ item: String) {
@@ -266,52 +250,32 @@ final class ClipboardHistoryWindowController: NSWindowController {
         keyUp?.post(tap: .cghidEventTap)
     }
 
-    // MARK: - Search
-
-    @objc private func searchChanged() {
-        let query = searchField.stringValue
-        if query.isEmpty {
-            filteredHistory = ClipboardManager.shared.history
-        } else {
-            filteredHistory = ClipboardManager.shared.history.filter {
-                $0.localizedCaseInsensitiveContains(query)
-            }
-        }
-        tableView.reloadData()
-        updateCountLabel()
-
-        if !filteredHistory.isEmpty {
-            tableView.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
-            tableView.scrollRowToVisible(0)
-        }
-    }
+    // MARK: - Count Label
 
     private func updateCountLabel() {
         let total = ClipboardManager.shared.history.count
-        let shown = filteredHistory.count
-        if searchField.stringValue.isEmpty {
-            countLabel.stringValue = "\(total) 件 / 最大 \(ClipboardManager.shared.maxHistoryCount) 件"
-        } else {
-            countLabel.stringValue = "\(shown) 件 / \(total) 件"
-        }
+        countLabel.stringValue = "\(total) 件 / 最大 \(ClipboardManager.shared.maxHistoryCount) 件"
     }
 
     // MARK: - Double-click
 
     @objc private func rowDoubleClicked() {
         let row = tableView.clickedRow
-        guard row >= 0, row < filteredHistory.count else { return }
-        pasteItem(filteredHistory[row])
+        guard row >= 0, row < history.count else { return }
+        pasteItem(history[row])
     }
 }
 
 // MARK: - NSTableViewDataSource
 
 extension ClipboardHistoryWindowController: NSTableViewDataSource {
-    func numberOfRows(in tableView: NSTableView) -> Int { filteredHistory.count }
+    func numberOfRows(in tableView: NSTableView) -> Int { history.count }
 }
 
 // MARK: - NSTableViewDelegate
+
+private let shortcutBadgeTag = 42
+private let shortcutLabels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 
 extension ClipboardHistoryWindowController: NSTableViewDelegate {
 
@@ -323,6 +287,16 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
             cell = NSTableCellView()
             cell?.identifier = identifier
 
+            // Shortcut badge (left)
+            let badge = NSTextField(labelWithString: "")
+            badge.tag = shortcutBadgeTag
+            badge.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+            badge.textColor = .tertiaryLabelColor
+            badge.alignment = .center
+            badge.translatesAutoresizingMaskIntoConstraints = false
+            cell?.addSubview(badge)
+
+            // Content text field (right)
             let tf = NSTextField()
             tf.isBezeled = false
             tf.drawsBackground = false
@@ -334,13 +308,22 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
             cell?.textField = tf
 
             NSLayoutConstraint.activate([
-                tf.leadingAnchor.constraint(equalTo: cell!.leadingAnchor, constant: 8),
+                badge.leadingAnchor.constraint(equalTo: cell!.leadingAnchor, constant: 6),
+                badge.widthAnchor.constraint(equalToConstant: 18),
+                badge.centerYAnchor.constraint(equalTo: cell!.centerYAnchor),
+
+                tf.leadingAnchor.constraint(equalTo: badge.trailingAnchor, constant: 4),
                 tf.trailingAnchor.constraint(equalTo: cell!.trailingAnchor, constant: -8),
                 tf.centerYAnchor.constraint(equalTo: cell!.centerYAnchor),
             ])
         }
 
-        let raw = filteredHistory[row]
+        // Update shortcut badge per row
+        if let badge = cell?.viewWithTag(shortcutBadgeTag) as? NSTextField {
+            badge.stringValue = row < shortcutLabels.count ? shortcutLabels[row] : ""
+        }
+
+        let raw = history[row]
         // Collapse newlines for single-line display.
         let display = raw
             .replacingOccurrences(of: "\r\n", with: "↵")
@@ -357,9 +340,7 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
 
 extension ClipboardHistoryWindowController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
-        // Reset search when the window is dismissed.
-        searchField.stringValue = ""
-        filteredHistory = []
+        history = []
         tableView.reloadData()
     }
 }
