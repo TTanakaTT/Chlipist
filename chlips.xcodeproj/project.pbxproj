@@ -14,6 +14,7 @@
 		AA0000000000001E /* ClipboardHistoryWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000014 /* ClipboardHistoryWindowController.swift */; };
 		AA0000000000001F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000015 /* Assets.xcassets */; };
 		AA00000000000020 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000016 /* Carbon.framework */; };
+		AA00000000000021 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000022 /* ServiceManagement.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		AA00000000000014 /* ClipboardHistoryWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryWindowController.swift; sourceTree = "<group>"; };
 		AA00000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA00000000000016 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		AA00000000000022 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		AA00000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA00000000000018 /* chlips.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chlips.entitlements; sourceTree = "<group>"; };
 		AA00000000000019 /* chlips.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chlips.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,6 +37,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA00000000000020 /* Carbon.framework in Frameworks */,
+				AA00000000000021 /* ServiceManagement.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				AA00000000000016 /* Carbon.framework */,
+				AA00000000000022 /* ServiceManagement.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -211,7 +215,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -265,7 +269,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;

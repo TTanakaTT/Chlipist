@@ -1,9 +1,11 @@
 import Cocoa
+import ServiceManagement
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem?
     private var hotKeyManager: HotKeyManager?
+    private var launchAtLoginItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide the app from the Dock (LSUIElement handles this at launch,
@@ -37,9 +39,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         button.toolTip = "Chlips – Clipboard History"
 
+        let launchItem = NSMenuItem(title: "ログイン時に起動", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        launchItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        launchAtLoginItem = launchItem
+
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Show History  (⌘⇧V)", action: #selector(showHistory), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Clear History", action: #selector(clearHistory), keyEquivalent: ""))
+        menu.addItem(.separator())
+        menu.addItem(launchItem)
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit Chlips", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem?.menu = menu
@@ -51,6 +59,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func clearHistory() {
         ClipboardManager.shared.clearHistory()
+    }
+
+    // MARK: - Launch at Login
+
+    @objc private func toggleLaunchAtLogin() {
+        let service = SMAppService.mainApp
+        do {
+            if service.status == .enabled {
+                try service.unregister()
+                launchAtLoginItem?.state = .off
+            } else {
+                try service.register()
+                launchAtLoginItem?.state = .on
+            }
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "ログイン時に起動の設定に失敗しました"
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
+        }
     }
 
     // MARK: - Accessibility

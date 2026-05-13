@@ -13,7 +13,7 @@ Windows の「Win + V」と似た挙動を macOS で実現します。
 
 ## 動作環境
 
-- macOS 12 Monterey 以降
+- macOS 13 Ventura 以降
 - ディベロッパー登録不要（コード署名なしでビルド可能）
 
 ## ビルド方法
