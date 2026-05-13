@@ -98,8 +98,7 @@ final class ClipboardManager {
             let decoded = try JSONDecoder().decode([String].self, from: data)
             history = Array(decoded.prefix(maxHistoryCount)).filter { !$0.isEmpty }
         } catch let error as NSError
-            where error.domain == NSCocoaErrorDomain
-            && error.code == CocoaError.fileReadNoSuchFile.rawValue {
+            where isCocoaError(error, code: CocoaError.fileReadNoSuchFile.rawValue) {
             return
         } catch {
             NSLog("ClipboardManager: failed to load persisted history (%@)", error.localizedDescription)
@@ -158,8 +157,7 @@ final class ClipboardManager {
                 attributes: [.posixPermissions: 0o700]
             )
         } catch let error as NSError
-            where error.domain == NSCocoaErrorDomain
-            && error.code == NSFileWriteFileExistsError {
+            where isCocoaError(error, code: NSFileWriteFileExistsError) {
             var createdIsDirectory: ObjCBool = false
             guard fileManager.fileExists(atPath: directoryURL.path, isDirectory: &createdIsDirectory),
                   createdIsDirectory.boolValue else {
@@ -209,5 +207,9 @@ final class ClipboardManager {
         }
 
         shouldRemoveTempFile = false
+    }
+
+    private func isCocoaError(_ error: NSError, code: Int) -> Bool {
+        error.domain == NSCocoaErrorDomain && error.code == code
     }
 }
