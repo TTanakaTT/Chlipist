@@ -6,7 +6,9 @@ final class ClipboardManager {
     // MARK: - Singleton
 
     static let shared = ClipboardManager()
-    private init() {}
+    private init() {
+        loadHistory()
+    }
 
     // MARK: - Public State
 
@@ -23,6 +25,8 @@ final class ClipboardManager {
 
     /// How often to poll NSPasteboard for changes (seconds).
     private let pollingInterval: TimeInterval = 0.5
+    private let persistenceDirectoryName = "chlips"
+    private let persistenceFileName = "clipboard-history.json"
 
     // MARK: - Monitoring
 
@@ -44,6 +48,7 @@ final class ClipboardManager {
 
     func clearHistory() {
         history.removeAll()
+        saveHistory()
     }
 
     /// Directly sets the pasteboard to `item` (used just before pasting back).
@@ -73,6 +78,62 @@ final class ClipboardManager {
 
         if history.count > maxHistoryCount {
             history.removeLast(history.count - maxHistoryCount)
+        }
+
+        saveHistory()
+    }
+
+    private func loadHistory() {
+        guard let fileURL = historyFileURL() else { return }
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let decoded = try JSONDecoder().decode([String].self, from: data)
+            history = Array(decoded.prefix(maxHistoryCount)).filter { !$0.isEmpty }
+        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileReadNoSuchFileError {
+            return
+        } catch {
+            NSLog("ClipboardManager: failed to load persisted history (%@)", error.localizedDescription)
+        }
+    }
+
+    private func saveHistory() {
+        guard let fileURL = historyFileURL() else { return }
+
+        do {
+            if history.isEmpty {
+                try removePersistedHistoryIfNeeded(at: fileURL)
+                return
+            }
+
+            try ensurePersistenceDirectoryExists(for: fileURL)
+            let data = try JSONEncoder().encode(Array(history.prefix(maxHistoryCount)))
+            try data.write(to: fileURL, options: .atomic)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
+        } catch {
+            NSLog("ClipboardManager: failed to persist history (%@)", error.localizedDescription)
+        }
+    }
+
+    private func historyFileURL() -> URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent(persistenceDirectoryName, isDirectory: true)
+            .appendingPathComponent(persistenceFileName, isDirectory: false)
+    }
+
+    private func ensurePersistenceDirectoryExists(for fileURL: URL) throws {
+        let directoryURL = fileURL.deletingLastPathComponent()
+        try FileManager.default.createDirectory(
+            at: directoryURL,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o700]
+        )
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+    }
+
+    private func removePersistedHistoryIfNeeded(at fileURL: URL) throws {
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            try FileManager.default.removeItem(at: fileURL)
         }
     }
 }
