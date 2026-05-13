@@ -124,8 +124,7 @@ final class ClipboardManager {
 
         try ensurePersistenceDirectoryExists(for: fileURL)
         let data = try JSONEncoder().encode(Array(history.prefix(maxHistoryCount)))
-        try data.write(to: fileURL, options: .atomic)
-        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
+        try writeDataSecurely(data, to: fileURL)
     }
 
     private func historyFileURL() -> URL? {
@@ -136,20 +135,46 @@ final class ClipboardManager {
 
     private func ensurePersistenceDirectoryExists(for fileURL: URL) throws {
         let directoryURL = fileURL.deletingLastPathComponent()
-        if FileManager.default.fileExists(atPath: directoryURL.path) {
-            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
-        } else {
-            try FileManager.default.createDirectory(
-                at: directoryURL,
-                withIntermediateDirectories: true,
-                attributes: [.posixPermissions: 0o700]
-            )
-        }
+        try FileManager.default.createDirectory(
+            at: directoryURL,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o700]
+        )
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
     }
 
     private func removePersistedHistoryIfNeeded(at fileURL: URL) throws {
         if FileManager.default.fileExists(atPath: fileURL.path) {
             try FileManager.default.removeItem(at: fileURL)
+        }
+    }
+
+    private func writeDataSecurely(_ data: Data, to fileURL: URL) throws {
+        let fileManager = FileManager.default
+        let directoryURL = fileURL.deletingLastPathComponent()
+        let tempURL = directoryURL.appendingPathComponent(".\(persistenceFileName).\(UUID().uuidString).tmp")
+
+        defer { try? fileManager.removeItem(at: tempURL) }
+
+        let created = fileManager.createFile(
+            atPath: tempURL.path,
+            contents: nil,
+            attributes: [.posixPermissions: 0o600]
+        )
+        guard created else {
+            throw NSError(
+                domain: NSCocoaErrorDomain,
+                code: NSFileWriteUnknownError,
+                userInfo: [NSFilePathErrorKey: tempURL.path]
+            )
+        }
+
+        try data.write(to: tempURL)
+
+        if fileManager.fileExists(atPath: fileURL.path) {
+            _ = try fileManager.replaceItemAt(fileURL, withItemAt: tempURL)
+        } else {
+            try fileManager.moveItem(at: tempURL, to: fileURL)
         }
     }
 }
