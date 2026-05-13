@@ -302,7 +302,7 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
             tf.drawsBackground = false
             tf.isEditable = false
             tf.isSelectable = false
-            tf.lineBreakMode = .byTruncatingTail
+            tf.lineBreakMode = .byClipping
             tf.translatesAutoresizingMaskIntoConstraints = false
             cell?.addSubview(tf)
             cell?.textField = tf
@@ -329,7 +329,11 @@ extension ClipboardHistoryWindowController: NSTableViewDelegate {
             .replacingOccurrences(of: "\r\n", with: "↵")
             .replacingOccurrences(of: "\n", with: "↵")
             .replacingOccurrences(of: "\r", with: "↵")
-        cell?.textField?.stringValue = display
+
+        // badge (6 leading + 18 width + 4 gap) + trailing 8 = 36 px overhead
+        let tfWidth = (tableColumn?.width ?? 280) - 36
+        let font = cell?.textField?.font ?? NSFont.systemFont(ofSize: 13)
+        cell?.textField?.stringValue = display.truncated(toWidth: tfWidth, font: font)
         cell?.toolTip = raw.count > 200 ? String(raw.prefix(200)) + " …" : raw
 
         return cell
@@ -343,6 +347,13 @@ extension ClipboardHistoryWindowController: NSWindowDelegate {
         history = []
         tableView.reloadData()
     }
+
+    /// Close the panel automatically when it loses focus so the user can
+    /// interact with other windows without the panel staying in the way.
+    func windowDidResignKey(_ notification: Notification) {
+        guard window?.isVisible == true else { return }
+        closePanel()
+    }
 }
 
 // MARK: - HistoryPanel
@@ -351,4 +362,29 @@ extension ClipboardHistoryWindowController: NSWindowDelegate {
 private class HistoryPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
+}
+
+// MARK: - String helpers
+
+private extension String {
+    /// Returns a version of the string that fits within `maxWidth` points
+    /// using the given font, appending " …" when truncation is needed.
+    func truncated(toWidth maxWidth: CGFloat, font: NSFont) -> String {
+        let attrs: [NSAttributedString.Key: Any] = [.font: font]
+        guard (self as NSString).size(withAttributes: attrs).width > maxWidth else { return self }
+        let suffix = " …"
+        let suffixWidth = (suffix as NSString).size(withAttributes: attrs).width
+        let target = maxWidth - suffixWidth
+        var lo = 0, hi = self.count
+        while lo < hi {
+            let mid = (lo + hi + 1) / 2
+            let s = String(self.prefix(mid))
+            if (s as NSString).size(withAttributes: attrs).width <= target {
+                lo = mid
+            } else {
+                hi = mid - 1
+            }
+        }
+        return String(self.prefix(lo)) + suffix
+    }
 }
