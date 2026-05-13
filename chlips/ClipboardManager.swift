@@ -47,8 +47,15 @@ final class ClipboardManager {
     // MARK: - History Management
 
     func clearHistory() {
+        let previousHistory = history
         history.removeAll()
-        saveHistory()
+
+        do {
+            try persistHistory()
+        } catch {
+            history = previousHistory
+            NSLog("ClipboardManager: failed to clear persisted history (%@)", error.localizedDescription)
+        }
     }
 
     /// Directly sets the pasteboard to `item` (used just before pasting back).
@@ -98,21 +105,25 @@ final class ClipboardManager {
     }
 
     private func saveHistory() {
-        guard let fileURL = historyFileURL() else { return }
-
         do {
-            if history.isEmpty {
-                try removePersistedHistoryIfNeeded(at: fileURL)
-                return
-            }
-
-            try ensurePersistenceDirectoryExists(for: fileURL)
-            let data = try JSONEncoder().encode(Array(history.prefix(maxHistoryCount)))
-            try data.write(to: fileURL, options: .atomic)
-            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
+            try persistHistory()
         } catch {
             NSLog("ClipboardManager: failed to persist history (%@)", error.localizedDescription)
         }
+    }
+
+    private func persistHistory() throws {
+        guard let fileURL = historyFileURL() else { return }
+
+        if history.isEmpty {
+            try removePersistedHistoryIfNeeded(at: fileURL)
+            return
+        }
+
+        try ensurePersistenceDirectoryExists(for: fileURL)
+        let data = try JSONEncoder().encode(Array(history.prefix(maxHistoryCount)))
+        try data.write(to: fileURL, options: .atomic)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: fileURL.path)
     }
 
     private func historyFileURL() -> URL? {
@@ -123,12 +134,15 @@ final class ClipboardManager {
 
     private func ensurePersistenceDirectoryExists(for fileURL: URL) throws {
         let directoryURL = fileURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(
-            at: directoryURL,
-            withIntermediateDirectories: true,
-            attributes: [.posixPermissions: 0o700]
-        )
-        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+        if FileManager.default.fileExists(atPath: directoryURL.path) {
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+        } else {
+            try FileManager.default.createDirectory(
+                at: directoryURL,
+                withIntermediateDirectories: true,
+                attributes: [.posixPermissions: 0o700]
+            )
+        }
     }
 
     private func removePersistedHistoryIfNeeded(at fileURL: URL) throws {
