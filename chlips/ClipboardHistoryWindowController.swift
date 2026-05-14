@@ -33,7 +33,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        panel.title = "Clipboard History — Chlips"
+        panel.title = NSLocalizedString("window.history.title", comment: "")
         panel.level = .floating
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
@@ -255,7 +255,11 @@ final class ClipboardHistoryWindowController: NSWindowController {
 
     private func updateCountLabel() {
         let total = ClipboardManager.shared.history.count
-        countLabel.stringValue = "\(total) 件 / 最大 \(ClipboardManager.shared.maxHistoryCount) 件"
+        countLabel.stringValue = String.localizedStringWithFormat(
+            NSLocalizedString("history.count.format", comment: ""),
+            total,
+            ClipboardManager.shared.maxHistoryCount
+        )
     }
 
     // MARK: - Double-click

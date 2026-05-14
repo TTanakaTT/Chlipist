@@ -1,34 +1,33 @@
 # chlips
 
-macOS向けクリップボード履歴管理アプリ。  
-Windows の「Win + V」と似た挙動を macOS で実現します。
+chlips is a macOS clipboard history app inspired by the Windows **Win + V** experience.
 
-## 機能
+## Features
 
-- コピー（⌘C）のたびにテキスト履歴を最大 50 件蓄積
-- 履歴はユーザーごとの `Application Support/chlips/clipboard-history.json` に保存され、アプリ更新後も引き継がれる
-- **⌘⇧V** を押すと、マウスカーソル付近にフローティングパネルが表示される
-- リストから選択すると直前にフォーカスしていたアプリへ自動ペースト
-- 上位 10 件には **1〜9 / 0** キーのショートカットを表示・割り当て
-- メニューバーアイコンからも履歴パネルを呼び出し・履歴クリアが可能
+- Stores up to 50 copied text entries
+- Persists history in `Application Support/chlips/clipboard-history.json` for each user
+- Shows a floating history panel near the mouse cursor with **⌘⇧V**
+- Automatically pastes the selected item back into the app that was previously focused
+- Displays shortcut badges for the top 10 entries with **1-9 / 0**
+- Lets you open the history panel or clear history from the menu bar icon
 
-## 動作環境
+## Requirements
 
-- macOS 13 Ventura 以降
-- ディベロッパー登録不要（コード署名なしでビルド可能）
+- macOS 13 Ventura or later
+- No Apple Developer account required for local builds
 
-## ビルド方法
+## Build
 
-### Xcode で開く
+### Build in Xcode
 
-1. `chlips.xcodeproj` を Xcode 15 以降で開く
-2. ターゲット「chlips」を選択
-3. **Product > Build** (⌘B) でビルド
-4. **Product > Run** (⌘R) で実行
+1. Open `chlips.xcodeproj` in Xcode 15 or later
+2. Select the `chlips` target
+3. Build with **Product > Build** (⌘B)
+4. Run with **Product > Run** (⌘R)
 
-コード署名は無効化済みのため、Apple Developer アカウントは不要です。
+Code signing is already disabled for local builds.
 
-### コマンドラインビルド（xcodebuild）
+### Build from the command line
 
 ```bash
 xcodebuild -project chlips.xcodeproj \
@@ -41,54 +40,49 @@ xcodebuild -project chlips.xcodeproj \
            build
 ```
 
-ビルド成果物は `./.build/Build/Products/Release` に生成されます。
+The app bundle is generated in `./.build/Build/Products/Release`.
 
 ```bash
 rsync -a ./.build/Build/Products/Release/chlips.app /Applications
 ```
 
-Applicationsへ移動。
+## First Launch
 
-## 初回起動時の設定
+After launching the app, grant the following permissions:
 
-アプリ起動後、以下の権限を付与してください：
+1. **Accessibility** — required to simulate ⌘V in other apps
+   Add **chlips** in **System Settings > Privacy & Security > Accessibility**.
+   The app prompts for this automatically on first launch.
 
-1. **アクセシビリティ権限** — 他のアプリへの ⌘V シミュレーションに必要  
-   「システム設定 > プライバシーとセキュリティ > アクセシビリティ」で **chlips** を追加してください。  
-   初回起動時に自動でダイアログが表示されます。
+2. **Launch at Login** — enabled automatically on first launch. You can turn it off later from the menu bar item **Launch at Login**.
 
-2. **ログイン時に起動** — 初回起動時に自動でオンになります。必要に応じてメニューバーの **「ログイン時に起動」** からオフにできます。
+> **Note:** The global hotkey (**⌘⇧V**) uses the Carbon API, so opening the history panel does not require Accessibility permission. Only paste simulation requires it.
 
-> **補足**: グローバルホットキー（⌘⇧V）の登録には Carbon API を使用しているため、  
-> アクセシビリティ権限なしでも **ホットキーによるパネル表示** は動作します。  
-> ペーストのシミュレーションにのみアクセシビリティ権限が必要です。
+## History Storage
 
-## 履歴データの保存について
+- Clipboard history is stored in memory and on disk for the current user.
+- The storage path is `~/Library/Application Support/chlips/clipboard-history.json`.
+- The app limits file and directory permissions to the current user, but the stored history is plain text.
+- The file may be included in backups such as Time Machine, so handle sensitive clipboard data accordingly.
+- Choosing **Clear History** removes both the in-memory and persisted history.
 
-- クリップボード履歴はログイン中のメモリだけでなく、ユーザーごとのローカルファイルにも保存されます。
-- 保存先は `~/Library/Application Support/chlips/clipboard-history.json` です。
-- 保存ファイルとディレクトリにはユーザー限定の権限を設定していますが、内容自体は平文です。
-- Time Machine などのバックアップ対象になる可能性があるため、機密情報を多く扱う場合はバックアップ運用も含めて注意してください。
-- 機密情報をコピーする運用が多い場合は、この仕様に注意してください。
-- メニューの **Clear History** を実行すると、保存済みの履歴も同時に削除されます。
+## Project Structure
 
-## ファイル構成
-
-```
+```text
 chlips/
 ├── chlips.xcodeproj/
-│   └── project.pbxproj         # Xcode プロジェクト定義
+│   └── project.pbxproj
 └── chlips/
-    ├── main.swift               # アプリエントリーポイント
-    ├── AppDelegate.swift        # ステータスバー・権限チェック
-    ├── ClipboardManager.swift   # NSPasteboard ポーリング・履歴管理
-    ├── HotKeyManager.swift      # Carbon API によるグローバルホットキー登録
-    ├── ClipboardHistoryWindowController.swift  # 履歴パネル UI
-    ├── Info.plist               # アプリ設定（LSUIElement=YES など）
-    ├── chlips.entitlements      # エンタイトルメント（署名なし用）
-    └── Assets.xcassets/         # アセットカタログ
+    ├── main.swift
+    ├── AppDelegate.swift
+    ├── ClipboardManager.swift
+    ├── HotKeyManager.swift
+    ├── ClipboardHistoryWindowController.swift
+    ├── Info.plist
+    ├── chlips.entitlements
+    └── Assets.xcassets/
 ```
 
-## ライセンス
+## License
 
-個人利用目的のサンプルコードです。
+Sample code for personal use.

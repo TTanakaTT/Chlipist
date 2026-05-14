@@ -33,26 +33,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         guard let button = statusItem?.button else { return }
 
-        if let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Chlips") {
+        if let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: NSLocalizedString("app.name", comment: "")) {
             image.size = NSSize(width: 18, height: 18)
             button.image = image
         } else {
             button.title = "📋"
         }
 
-        button.toolTip = "Chlips – Clipboard History"
+        button.toolTip = NSLocalizedString("status.tooltip", comment: "")
 
-        let launchItem = NSMenuItem(title: "ログイン時に起動", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        let launchItem = NSMenuItem(title: NSLocalizedString("menu.launchAtLogin", comment: ""), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         launchItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
         launchAtLoginItem = launchItem
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Show History  (⌘⇧V)", action: #selector(showHistory), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Clear History", action: #selector(clearHistory), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.showHistory", comment: ""), action: #selector(showHistory), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.clearHistory", comment: ""), action: #selector(clearHistory), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(launchItem)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit Chlips", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.quit", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem?.menu = menu
     }
 
@@ -89,7 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             let alert = NSAlert()
-            alert.messageText = "ログイン時に起動の設定に失敗しました"
+            alert.messageText = NSLocalizedString("alert.launchAtLoginFailed.title", comment: "")
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }
@@ -103,18 +103,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Prompt the system dialog asking the user to grant access.
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
-
-        let alert = NSAlert()
-        alert.messageText = "アクセシビリティ権限が必要です"
-        alert.informativeText = """
-        Chlips は他のアプリへのペーストに「アクセシビリティ」権限が必要です。
-        「システム設定 > プライバシーとセキュリティ > アクセシビリティ」で Chlips を許可してから再起動してください。
-        """
-        alert.addButton(withTitle: "システム設定を開く")
-        alert.addButton(withTitle: "後で")
-        if alert.runModal() == .alertFirstButtonReturn {
-            let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-            NSWorkspace.shared.open(url)
-        }
     }
 }

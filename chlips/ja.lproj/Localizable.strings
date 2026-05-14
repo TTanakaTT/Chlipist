@@ -1,0 +1,9 @@
+"app.name" = "chlips";
+"status.tooltip" = "chlips – クリップボード履歴";
+"menu.launchAtLogin" = "ログイン時に起動";
+"menu.showHistory" = "履歴を表示 (⌘⇧V)";
+"menu.clearHistory" = "履歴を消去";
+"menu.quit" = "chlips を終了";
+"alert.launchAtLoginFailed.title" = "ログイン時に起動の設定に失敗しました";
+"window.history.title" = "クリップボード履歴 — chlips";
+"history.count.format" = "最大%2$d件中 %1$d件";
