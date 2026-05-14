@@ -1,0 +1,13 @@
+"app.name" = "chlips";
+"status.tooltip" = "chlips – Clipboard History";
+"menu.launchAtLogin" = "Launch at Login";
+"menu.showHistory" = "Show History (⌘⇧V)";
+"menu.clearHistory" = "Clear History";
+"menu.quit" = "Quit chlips";
+"alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
+"alert.accessibility.title" = "Accessibility Permission Required";
+"alert.accessibility.message" = "chlips needs Accessibility permission to paste into other apps.\nAllow chlips in System Settings > Privacy & Security > Accessibility, then relaunch the app.";
+"alert.accessibility.openSettings" = "Open System Settings";
+"alert.accessibility.later" = "Later";
+"window.history.title" = "Clipboard History — chlips";
+"history.count.format" = "%1$d items / max %2$d";

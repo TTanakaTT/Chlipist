@@ -23,10 +23,9 @@
 	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>chlips uses Accessibility permission to paste clipboard items into other apps.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<!-- Accessibility usage description shown to the user. -->
-	<key>NSAccessibilityUsageDescription</key>
-	<string>Chlips uses Accessibility to paste clipboard items into other apps via ⌘V simulation.</string>
 </dict>
 </plist>
