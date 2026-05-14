@@ -103,15 +103,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Prompt the system dialog asking the user to grant access.
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
-
-        let alert = NSAlert()
-        alert.messageText = NSLocalizedString("alert.accessibility.title", comment: "")
-        alert.informativeText = NSLocalizedString("alert.accessibility.message", comment: "")
-        alert.addButton(withTitle: NSLocalizedString("alert.accessibility.openSettings", comment: ""))
-        alert.addButton(withTitle: NSLocalizedString("alert.accessibility.later", comment: ""))
-        if alert.runModal() == .alertFirstButtonReturn {
-            let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-            NSWorkspace.shared.open(url)
-        }
     }
 }
