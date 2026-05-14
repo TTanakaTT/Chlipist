@@ -8,10 +8,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKeyManager: HotKeyManager?
     private var launchAtLoginItem: NSMenuItem?
 
-    private func localized(_ key: String) -> String {
-        NSLocalizedString(key, comment: "")
-    }
-
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide the app from the Dock (LSUIElement handles this at launch,
         // but we also set it programmatically for safety).
@@ -37,26 +33,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         guard let button = statusItem?.button else { return }
 
-        if let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: localized("app.name")) {
+        if let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: NSLocalizedString("app.name", comment: "")) {
             image.size = NSSize(width: 18, height: 18)
             button.image = image
         } else {
             button.title = "📋"
         }
 
-        button.toolTip = localized("status.tooltip")
+        button.toolTip = NSLocalizedString("status.tooltip", comment: "")
 
-        let launchItem = NSMenuItem(title: localized("menu.launchAtLogin"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        let launchItem = NSMenuItem(title: NSLocalizedString("menu.launchAtLogin", comment: ""), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         launchItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
         launchAtLoginItem = launchItem
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: localized("menu.showHistory"), action: #selector(showHistory), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: localized("menu.clearHistory"), action: #selector(clearHistory), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.showHistory", comment: ""), action: #selector(showHistory), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.clearHistory", comment: ""), action: #selector(clearHistory), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(launchItem)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: localized("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: NSLocalizedString("menu.quit", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem?.menu = menu
     }
 
@@ -93,7 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             let alert = NSAlert()
-            alert.messageText = localized("alert.launchAtLoginFailed.title")
+            alert.messageText = NSLocalizedString("alert.launchAtLoginFailed.title", comment: "")
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }
@@ -109,10 +105,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         AXIsProcessTrustedWithOptions(options)
 
         let alert = NSAlert()
-        alert.messageText = localized("alert.accessibility.title")
-        alert.informativeText = localized("alert.accessibility.message")
-        alert.addButton(withTitle: localized("alert.accessibility.openSettings"))
-        alert.addButton(withTitle: localized("alert.accessibility.later"))
+        alert.messageText = NSLocalizedString("alert.accessibility.title", comment: "")
+        alert.informativeText = NSLocalizedString("alert.accessibility.message", comment: "")
+        alert.addButton(withTitle: NSLocalizedString("alert.accessibility.openSettings", comment: ""))
+        alert.addButton(withTitle: NSLocalizedString("alert.accessibility.later", comment: ""))
         if alert.runModal() == .alertFirstButtonReturn {
             let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
             NSWorkspace.shared.open(url)

@@ -1,9 +1,5 @@
 import Cocoa
 
-private func localizedWindowString(_ key: String) -> String {
-    NSLocalizedString(key, comment: "")
-}
-
 // MARK: - ClipboardHistoryWindowController
 
 /// Floating panel that shows clipboard history.
@@ -37,7 +33,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        panel.title = localizedWindowString("window.history.title")
+        panel.title = NSLocalizedString("window.history.title", comment: "")
         panel.level = .floating
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
@@ -260,7 +256,7 @@ final class ClipboardHistoryWindowController: NSWindowController {
     private func updateCountLabel() {
         let total = ClipboardManager.shared.history.count
         countLabel.stringValue = String.localizedStringWithFormat(
-            localizedWindowString("history.count.format"),
+            NSLocalizedString("history.count.format", comment: ""),
             total,
             ClipboardManager.shared.maxHistoryCount
         )
