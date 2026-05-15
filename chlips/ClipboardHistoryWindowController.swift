@@ -196,7 +196,8 @@ private extension String {
     }
 
     private func normalizingLineBreaks(as replacement: String) -> String {
-        var normalized = ""
+        var normalized = String()
+        normalized.reserveCapacity(count)
         var index = startIndex
 
         while index < endIndex {
