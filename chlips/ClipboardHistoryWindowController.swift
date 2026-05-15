@@ -197,6 +197,7 @@ private extension String {
 
     private func replacingLineBreaks(with replacement: String) -> String {
         var result = String()
+        result.reserveCapacity(utf16.count)
         var index = startIndex
 
         while index < endIndex {
@@ -210,7 +211,11 @@ private extension String {
                     index = nextIndex
                 }
                 result.append(replacement)
-            } else if character == "\n" {
+                index = self.index(after: index)
+                continue
+            }
+
+            if character == "\n" {
                 result.append(replacement)
             } else {
                 result.append(character)
