@@ -165,21 +165,26 @@ private final class MenuAnchorWindow: NSWindow {
 }
 
 private extension String {
-    var menuDisplayTitle: String {
+    var normalizedMenuDisplayText: String {
         // Add a visible " ↵ " marker before collapsing whitespace so multi-line
         // clipboard entries still hint that they were originally line-broken.
-        let normalized = collapsingLineBreakMarkers()
+        collapsingLineBreakMarkers()
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
+    }
 
+    var menuDisplayTitle: String {
+        let normalized = normalizedMenuDisplayText
         guard !normalized.isEmpty else { return "…" }
         guard normalized.count > maxMenuItemCharacters else { return normalized }
         return String(normalized.prefix(maxMenuItemCharacters - 1)) + "…"
     }
 
     var menuDisplayToolTip: String {
-        guard count > maxMenuItemTooltipCharacters else { return self }
-        return String(prefix(maxMenuItemTooltipCharacters - 1)) + "…"
+        let normalized = normalizedMenuDisplayText
+        guard !normalized.isEmpty else { return "…" }
+        guard normalized.count > maxMenuItemTooltipCharacters else { return normalized }
+        return String(normalized.prefix(maxMenuItemTooltipCharacters - 1)) + "…"
     }
 
     private func collapsingLineBreakMarkers() -> String {
