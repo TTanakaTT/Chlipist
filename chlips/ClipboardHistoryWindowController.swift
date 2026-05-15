@@ -1,5 +1,6 @@
 import Cocoa
 
+/// Maximum character length shown for a menu item before truncating with an ellipsis.
 private let menuItemTruncationThreshold = 80
 
 final class ClipboardHistoryWindowController: NSObject {
@@ -8,6 +9,7 @@ final class ClipboardHistoryWindowController: NSObject {
     private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     private static let maxTopLevelItems = shortcutKeyEquivalents.count
 
+    /// Gives macOS time to finish re-activating the previous app before Cmd+V is posted.
     private let pasteSimulationDelay: TimeInterval = 0.15
 
     private var previousApp: NSRunningApplication?
@@ -162,15 +164,19 @@ private extension String {
     var menuDisplayTitle: String {
         // Add a visible return marker before collapsing whitespace so multi-line
         // clipboard entries still hint that they were originally line-broken.
-        let normalized = self
-            .replacingOccurrences(of: "\r\n", with: " ↵ ")
-            .replacingOccurrences(of: "\n", with: " ↵ ")
-            .replacingOccurrences(of: "\r", with: " ↵ ")
+        let normalized = collapsingLineBreakMarkers()
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
 
         guard !normalized.isEmpty else { return "…" }
         guard normalized.count > menuItemTruncationThreshold else { return normalized }
         return String(normalized.prefix(menuItemTruncationThreshold - 1)) + "…"
+    }
+
+    private func collapsingLineBreakMarkers() -> String {
+        self
+            .replacingOccurrences(of: "\r\n", with: " ↵ ")
+            .replacingOccurrences(of: "\n", with: " ↵ ")
+            .replacingOccurrences(of: "\r", with: " ↵ ")
     }
 }
