@@ -46,6 +46,20 @@ The app bundle is generated in `./.build/Build/Products/Release`.
 rsync -a ./.build/Build/Products/Release/chlips.app /Applications
 ```
 
+## GitHub Actions Artifacts
+
+The GitHub Actions workflow re-signs the built app with an ad-hoc signature. This avoids the damaged-bundle state that can happen when `xcodebuild` runs with signing disabled on GitHub Actions.
+
+The artifact is still not notarized, so macOS may ask you to trust the app on first launch. For personal use, that is expected.
+
+If the downloaded app is blocked by quarantine, remove the attribute after copying the app to `/Applications`:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/chlips.app
+```
+
+Depending on the macOS version, you can also use Finder's context menu or allow the app from **System Settings > Privacy & Security** after the first launch attempt.
+
 ## First Launch
 
 After launching the app, grant the following permissions:
