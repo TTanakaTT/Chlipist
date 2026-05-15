@@ -1,0 +1,72 @@
+name: Build ad-hoc signed macOS app
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    env:
+      DERIVED_DATA_PATH: ./.build
+      APP_PATH: ./.build/Build/Products/Release/chlips.app
+      DMG_STAGING_PATH: ./.build/dmg
+      DMG_PATH: ./chlips.dmg
+      DMG_VOLUME_NAME: chlips
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build Release app
+        run: |
+          xcodebuild -project chlips.xcodeproj \
+                     -scheme chlips \
+                     -configuration Release \
+                     -derivedDataPath "$DERIVED_DATA_PATH" \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO \
+                     build
+
+      - name: Re-sign app bundle with ad-hoc identity
+        run: |
+          set -euo pipefail
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
+      - name: Archive DMG
+        run: |
+          set -euo pipefail
+          rm -rf "$DMG_STAGING_PATH"
+          rm -f "$DMG_PATH"
+          mkdir -p "$DMG_STAGING_PATH"
+          cp -R "$APP_PATH" "$DMG_STAGING_PATH/chlips.app"
+          ln -s /Applications "$DMG_STAGING_PATH/Drag To Applications"
+
+          hdiutil create \
+            -volname "$DMG_VOLUME_NAME" \
+            -srcfolder "$DMG_STAGING_PATH" \
+            -ov \
+            -format UDZO \
+            "$DMG_PATH"
+          hdiutil verify "$DMG_PATH"
+
+      - name: Summarize artifact status
+        run: |
+          {
+            echo '## Artifact status'
+            echo
+            echo '- Re-signed with an ad-hoc signature so the app bundle is internally valid'
+            echo '- Not notarized; first launch on another Mac requires the usual trust or quarantine-bypass step for personal use'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: chlips-dmg
+          path: ./chlips.dmg
+          if-no-files-found: error
