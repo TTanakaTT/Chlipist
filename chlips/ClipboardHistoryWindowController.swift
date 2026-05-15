@@ -196,8 +196,14 @@ private extension String {
     }
 
     private func replacingLineBreaks(with replacement: String) -> String {
+        let newlineScalarCount = unicodeScalars.reduce(into: 0) { count, scalar in
+            if scalar == "\n" || scalar == "\r" {
+                count += 1
+            }
+        }
         var result = String()
-        result.reserveCapacity(utf16.count)
+        let extraCapacity = newlineScalarCount * max(0, replacement.utf16.count - 1)
+        result.reserveCapacity(utf16.count + extraCapacity)
         var index = startIndex
 
         while index < endIndex {
@@ -205,8 +211,8 @@ private extension String {
 
             if character == "\r" {
                 let nextIndex = self.index(after: index)
-                // Treat CRLF as a single line break so multiline clipboard previews
-                // preserve the original structure without doubling separators.
+                // Treat CRLF as a single line break so both menu titles and
+                // tooltips preserve the original structure without doubling separators.
                 if nextIndex < endIndex, self[nextIndex] == "\n" {
                     index = nextIndex
                 }
