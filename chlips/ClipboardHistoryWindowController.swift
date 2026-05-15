@@ -181,7 +181,7 @@ private extension String {
     }
 
     var menuDisplayToolTip: String {
-        let normalized = normalizedMenuDisplayText
+        let normalized = normalizedTooltipText
         guard !normalized.isEmpty else { return "…" }
         guard normalized.count > maxMenuItemTooltipCharacters else { return normalized }
         return String(normalized.prefix(maxMenuItemTooltipCharacters - 1)) + "…"
@@ -192,5 +192,11 @@ private extension String {
             .replacingOccurrences(of: "\r\n", with: " ↵ ")
             .replacingOccurrences(of: "\n", with: " ↵ ")
             .replacingOccurrences(of: "\r", with: " ↵ ")
+    }
+
+    private var normalizedTooltipText: String {
+        self
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
     }
 }
