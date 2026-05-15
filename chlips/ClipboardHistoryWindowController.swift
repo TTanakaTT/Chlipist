@@ -145,7 +145,7 @@ final class ClipboardHistoryWindowController: NSObject {
 
     private func simulateCmdV() {
         guard let source = CGEventSource(stateID: .hidSystemState) else { return }
-        let vKey: CGKeyCode = 9
+        let vKey: CGKeyCode = 9 // kVK_ANSI_V
 
         let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKey, keyDown: true)
         keyDown?.flags = .maskCommand
