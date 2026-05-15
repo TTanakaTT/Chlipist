@@ -1,7 +1,7 @@
 import Cocoa
 
-/// Maximum character length shown for a menu item before truncating with an ellipsis.
-private let menuItemTruncationThreshold = 30
+/// Maximum number of characters shown for a menu item before truncating with an ellipsis.
+private let maxMenuItemCharacters = 30
 
 final class ClipboardHistoryWindowController: NSObject {
 
@@ -169,8 +169,8 @@ private extension String {
             .joined(separator: " ")
 
         guard !normalized.isEmpty else { return "…" }
-        guard normalized.count > menuItemTruncationThreshold else { return normalized }
-        return String(normalized.prefix(menuItemTruncationThreshold - 1)) + "…"
+        guard normalized.count > maxMenuItemCharacters else { return normalized }
+        return String(normalized.prefix(maxMenuItemCharacters - 1)) + "…"
     }
 
     private func collapsingLineBreakMarkers() -> String {
