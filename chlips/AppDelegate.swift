@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         enableLaunchAtLoginByDefault()
+        _ = ClipboardHistoryWindowController.shared
 
         setupStatusBarItem()
         checkAccessibilityPermission()
