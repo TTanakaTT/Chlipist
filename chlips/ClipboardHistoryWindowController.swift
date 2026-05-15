@@ -158,16 +158,15 @@ private final class MenuAnchorWindow: NSWindow {
 
 private extension String {
     var menuDisplayTitle: String {
-        let singleLine = self
+        let normalized = self
             .replacingOccurrences(of: "\r\n", with: " ↵ ")
             .replacingOccurrences(of: "\n", with: " ↵ ")
             .replacingOccurrences(of: "\r", with: " ↵ ")
-            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        let normalized = singleLine.isEmpty ? self : singleLine
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
         let maxLength = 80
 
+        guard !normalized.isEmpty else { return "…" }
         guard normalized.count > maxLength else { return normalized }
         return String(normalized.prefix(maxLength - 1)) + "…"
     }
