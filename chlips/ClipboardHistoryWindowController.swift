@@ -4,6 +4,7 @@ import Cocoa
 /// When truncated, this allows up to 29 content characters plus one ellipsis.
 /// Keeping this at 30 helps the native menu stay compact.
 private let maxMenuItemCharacters = 30
+/// Maximum total characters shown for a menu item tooltip.
 private let maxMenuItemTooltipCharacters = 200
 
 final class ClipboardHistoryWindowController: NSObject {
@@ -178,7 +179,7 @@ private extension String {
 
     var menuDisplayToolTip: String {
         guard count > maxMenuItemTooltipCharacters else { return self }
-        return String(prefix(maxMenuItemTooltipCharacters)) + "…"
+        return String(prefix(maxMenuItemTooltipCharacters - 1)) + "…"
     }
 
     private func collapsingLineBreakMarkers() -> String {
