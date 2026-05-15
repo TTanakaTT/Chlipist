@@ -178,7 +178,7 @@ private extension String {
 
     var menuDisplayToolTip: String {
         guard count > maxMenuItemTooltipCharacters else { return self }
-        return String(prefix(maxMenuItemTooltipCharacters)) + " …"
+        return String(prefix(maxMenuItemTooltipCharacters)) + "…"
     }
 
     private func collapsingLineBreakMarkers() -> String {
