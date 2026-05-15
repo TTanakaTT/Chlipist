@@ -1,6 +1,7 @@
 import Cocoa
 
 /// Maximum total characters shown for a menu item title, including the ellipsis when truncated.
+/// Keeping this at 30 helps the native menu stay compact.
 private let maxMenuItemCharacters = 30
 
 final class ClipboardHistoryWindowController: NSObject {
@@ -162,7 +163,7 @@ private final class MenuAnchorWindow: NSWindow {
 
 private extension String {
     var menuDisplayTitle: String {
-        // Add a visible return marker before collapsing whitespace so multi-line
+        // Add a visible "↵" marker before collapsing whitespace so multi-line
         // clipboard entries still hint that they were originally line-broken.
         let normalized = collapsingLineBreakMarkers()
             .split(whereSeparator: \.isWhitespace)
