@@ -1,6 +1,6 @@
 import Cocoa
 
-/// Maximum number of characters shown for a menu item before truncating with an ellipsis.
+/// Maximum total characters shown for a menu item title, including the ellipsis when truncated.
 private let maxMenuItemCharacters = 30
 
 final class ClipboardHistoryWindowController: NSObject {
