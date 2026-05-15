@@ -1,4 +1,4 @@
-name: Build ad-hoc signed macOS app
+name: Build app
 
 on:
   push:
