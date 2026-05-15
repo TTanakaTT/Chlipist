@@ -3,9 +3,10 @@ import Cocoa
 final class ClipboardHistoryWindowController: NSObject {
 
     static let shared = ClipboardHistoryWindowController()
+    private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    private static let topLevelItemLimit = shortcutKeyEquivalents.count
+    private static let maxMenuItemDisplayLength = 80
 
-    private let topLevelItemLimit = 10
-    private let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     private let pasteSimulationDelay: TimeInterval = 0.15
 
     private var previousApp: NSRunningApplication?
@@ -60,18 +61,18 @@ final class ClipboardHistoryWindowController: NSObject {
             return menu
         }
 
-        for (index, item) in history.prefix(topLevelItemLimit).enumerated() {
-            menu.addItem(historyItem(for: item, keyEquivalent: shortcutKeyEquivalents[index]))
+        for (index, item) in history.prefix(Self.topLevelItemLimit).enumerated() {
+            menu.addItem(historyItem(for: item, keyEquivalent: Self.shortcutKeyEquivalents[index]))
         }
 
-        if history.count > topLevelItemLimit {
+        if history.count > Self.topLevelItemLimit {
             menu.addItem(.separator())
 
             let moreItem = NSMenuItem(title: NSLocalizedString("history.more", comment: ""), action: nil, keyEquivalent: "")
             let submenu = NSMenu(title: moreItem.title)
             submenu.autoenablesItems = false
 
-            for item in history.dropFirst(topLevelItemLimit) {
+            for item in history.dropFirst(Self.topLevelItemLimit) {
                 submenu.addItem(historyItem(for: item, keyEquivalent: ""))
             }
 
@@ -164,10 +165,9 @@ private extension String {
             .replacingOccurrences(of: "\r", with: " ↵ ")
             .split(whereSeparator: \.isWhitespace)
             .joined(separator: " ")
-        let maxLength = 80
 
         guard !normalized.isEmpty else { return "…" }
-        guard normalized.count > maxLength else { return normalized }
-        return String(normalized.prefix(maxLength - 1)) + "…"
+        guard normalized.count > ClipboardHistoryWindowController.maxMenuItemDisplayLength else { return normalized }
+        return String(normalized.prefix(ClipboardHistoryWindowController.maxMenuItemDisplayLength - 1)) + "…"
     }
 }
