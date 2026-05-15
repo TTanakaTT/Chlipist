@@ -196,7 +196,7 @@ private extension String {
     }
 
     private func replacingLineBreaks(with replacement: String) -> String {
-        var normalized = String()
+        var result = String()
         var index = startIndex
 
         while index < endIndex {
@@ -204,19 +204,21 @@ private extension String {
 
             if character == "\r" {
                 let nextIndex = self.index(after: index)
+                // Treat CRLF as a single line break so multiline clipboard previews
+                // preserve the original structure without doubling separators.
                 if nextIndex < endIndex, self[nextIndex] == "\n" {
                     index = nextIndex
                 }
-                normalized.append(replacement)
+                result.append(replacement)
             } else if character == "\n" {
-                normalized.append(replacement)
+                result.append(replacement)
             } else {
-                normalized.append(character)
+                result.append(character)
             }
 
             index = self.index(after: index)
         }
 
-        return normalized
+        return result
     }
 }
