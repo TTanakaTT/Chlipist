@@ -1,11 +1,12 @@
 import Cocoa
 
+private let menuItemTruncationThreshold = 80
+
 final class ClipboardHistoryWindowController: NSObject {
 
     static let shared = ClipboardHistoryWindowController()
     private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
     private static let maxTopLevelItems = shortcutKeyEquivalents.count
-    private static let menuItemTruncationThreshold = 80
 
     private let pasteSimulationDelay: TimeInterval = 0.15
 
@@ -169,7 +170,7 @@ private extension String {
             .joined(separator: " ")
 
         guard !normalized.isEmpty else { return "…" }
-        guard normalized.count > ClipboardHistoryWindowController.menuItemTruncationThreshold else { return normalized }
-        return String(normalized.prefix(ClipboardHistoryWindowController.menuItemTruncationThreshold - 1)) + "…"
+        guard normalized.count > menuItemTruncationThreshold else { return normalized }
+        return String(normalized.prefix(menuItemTruncationThreshold - 1)) + "…"
     }
 }
