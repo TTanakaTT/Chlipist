@@ -6,7 +6,7 @@ import Cocoa
 /// Top-level free function used as the Carbon event handler.
 /// Being a named free function (not a closure) guarantees it is treated as
 /// a plain C function pointer by the compiler — no captures needed.
-private func chlipsHotKeyHandler(
+private func chlipistHotKeyHandler(
     _ callRef: EventHandlerCallRef?,
     _ event: EventRef?,
     _ userData: UnsafeMutableRawPointer?
@@ -28,11 +28,11 @@ final class HotKeyManager {
     private var eventHandlerRef: EventHandlerRef?
 
     /// Four-char signature for this app: 'chlp' = 0x63_68_6C_70.
-    private let chlipsSignature: OSType = 0x63686C70
+    private let chlipistSignature: OSType = 0x63686C70
 
     func register() {
         var hotKeyID = EventHotKeyID()
-        hotKeyID.signature = chlipsSignature
+        hotKeyID.signature = chlipistSignature
         hotKeyID.id = 1
 
         // ⌘ + ⇧ + V
@@ -60,7 +60,7 @@ final class HotKeyManager {
 
         InstallEventHandler(
             GetApplicationEventTarget(),
-            chlipsHotKeyHandler,   // plain C function pointer — no captures
+            chlipistHotKeyHandler,   // plain C function pointer — no captures
             1,
             &eventSpec,
             nil,

@@ -25,7 +25,7 @@ final class ClipboardManager {
 
     /// How often to poll NSPasteboard for changes (seconds).
     private let pollingInterval: TimeInterval = 0.5
-    private let persistenceDirectoryName = "chlips"
+    private let persistenceDirectoryName = "chlipist"
     private let persistenceFileName = "clipboard-history.json"
 
     // MARK: - Monitoring

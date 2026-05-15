@@ -1,11 +1,11 @@
-"app.name" = "chlips";
-"status.tooltip" = "chlips – Clipboard History";
+"app.name" = "chlipist";
+"status.tooltip" = "chlipist – Clipboard History";
 "menu.launchAtLogin" = "Launch at Login";
 "menu.showHistory" = "Show History (⌘⇧V)";
 "menu.clearHistory" = "Clear History";
-"menu.quit" = "Quit chlips";
+"menu.quit" = "Quit chlipist";
 "alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
-"window.history.title" = "Clipboard History — chlips";
+"window.history.title" = "Clipboard History — chlipist";
 "history.count.format" = "%1$d items / max %2$d";
 "history.empty" = "Clipboard history is empty";
 "history.more" = "More";
