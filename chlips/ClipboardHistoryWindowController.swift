@@ -188,15 +188,17 @@ private extension String {
     }
 
     private func collapsingLineBreakMarkers() -> String {
-        self
-            .replacingOccurrences(of: "\r\n", with: " ↵ ")
-            .replacingOccurrences(of: "\n", with: " ↵ ")
-            .replacingOccurrences(of: "\r", with: " ↵ ")
+        normalizingLineBreaks(as: " ↵ ")
     }
 
     private var normalizedTooltipText: String {
+        normalizingLineBreaks(as: "\n")
+    }
+
+    private func normalizingLineBreaks(as replacement: String) -> String {
         self
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
+            .replacingOccurrences(of: "\n", with: replacement)
     }
 }
