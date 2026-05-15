@@ -1,7 +1,7 @@
 import Cocoa
 
 /// Maximum character length shown for a menu item before truncating with an ellipsis.
-private let menuItemTruncationThreshold = 80
+private let menuItemTruncationThreshold = 30
 
 final class ClipboardHistoryWindowController: NSObject {
 
