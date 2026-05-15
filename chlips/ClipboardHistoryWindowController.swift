@@ -4,8 +4,8 @@ final class ClipboardHistoryWindowController: NSObject {
 
     static let shared = ClipboardHistoryWindowController()
     private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-    private static let topLevelItemLimit = shortcutKeyEquivalents.count
-    private static let maxMenuItemDisplayLength = 80
+    private static let maxTopLevelItems = shortcutKeyEquivalents.count
+    private static let menuItemTruncationThreshold = 80
 
     private let pasteSimulationDelay: TimeInterval = 0.15
 
@@ -61,18 +61,18 @@ final class ClipboardHistoryWindowController: NSObject {
             return menu
         }
 
-        for (index, item) in history.prefix(Self.topLevelItemLimit).enumerated() {
+        for (index, item) in history.prefix(Self.maxTopLevelItems).enumerated() {
             menu.addItem(historyItem(for: item, keyEquivalent: Self.shortcutKeyEquivalents[index]))
         }
 
-        if history.count > Self.topLevelItemLimit {
+        if history.count > Self.maxTopLevelItems {
             menu.addItem(.separator())
 
             let moreItem = NSMenuItem(title: NSLocalizedString("history.more", comment: ""), action: nil, keyEquivalent: "")
             let submenu = NSMenu(title: moreItem.title)
             submenu.autoenablesItems = false
 
-            for item in history.dropFirst(Self.topLevelItemLimit) {
+            for item in history.dropFirst(Self.maxTopLevelItems) {
                 submenu.addItem(historyItem(for: item, keyEquivalent: ""))
             }
 
@@ -159,6 +159,8 @@ private final class MenuAnchorWindow: NSWindow {
 
 private extension String {
     var menuDisplayTitle: String {
+        // Add a visible return marker before collapsing whitespace so multi-line
+        // clipboard entries still hint that they were originally line-broken.
         let normalized = self
             .replacingOccurrences(of: "\r\n", with: " ↵ ")
             .replacingOccurrences(of: "\n", with: " ↵ ")
@@ -167,7 +169,7 @@ private extension String {
             .joined(separator: " ")
 
         guard !normalized.isEmpty else { return "…" }
-        guard normalized.count > ClipboardHistoryWindowController.maxMenuItemDisplayLength else { return normalized }
-        return String(normalized.prefix(ClipboardHistoryWindowController.maxMenuItemDisplayLength - 1)) + "…"
+        guard normalized.count > ClipboardHistoryWindowController.menuItemTruncationThreshold else { return normalized }
+        return String(normalized.prefix(ClipboardHistoryWindowController.menuItemTruncationThreshold - 1)) + "…"
     }
 }
