@@ -188,16 +188,15 @@ private extension String {
     }
 
     private func collapsingLineBreakMarkers() -> String {
-        normalizingLineBreaks(as: " ↵ ")
+        replacingLineBreaks(with: " ↵ ")
     }
 
     private var normalizedTooltipText: String {
-        normalizingLineBreaks(as: "\n")
+        replacingLineBreaks(with: "\n")
     }
 
-    private func normalizingLineBreaks(as replacement: String) -> String {
+    private func replacingLineBreaks(with replacement: String) -> String {
         var normalized = String()
-        normalized.reserveCapacity(count)
         var index = startIndex
 
         while index < endIndex {
