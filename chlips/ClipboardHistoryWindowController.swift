@@ -196,9 +196,27 @@ private extension String {
     }
 
     private func normalizingLineBreaks(as replacement: String) -> String {
-        self
-            .replacingOccurrences(of: "\r\n", with: "\n")
-            .replacingOccurrences(of: "\r", with: "\n")
-            .replacingOccurrences(of: "\n", with: replacement)
+        var normalized = ""
+        var index = startIndex
+
+        while index < endIndex {
+            let character = self[index]
+
+            if character == "\r" {
+                let nextIndex = self.index(after: index)
+                if nextIndex < endIndex, self[nextIndex] == "\n" {
+                    index = nextIndex
+                }
+                normalized.append(replacement)
+            } else if character == "\n" {
+                normalized.append(replacement)
+            } else {
+                normalized.append(character)
+            }
+
+            index = self.index(after: index)
+        }
+
+        return normalized
     }
 }
