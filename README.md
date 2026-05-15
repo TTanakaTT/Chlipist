@@ -1,26 +1,20 @@
 # chlipist
 
-chlipist is a macOS clipboard history app inspired by the Windows **Win + V** experience.
+chlipist is a macOS clipboard history app.
 
 ## Features
 
 - Stores up to 50 copied text entries
-- Persists history in `Application Support/chlipist/clipboard-history.json` for each user
 - Shows a native history menu near the mouse cursor with **⌘⇧V**
-- Automatically pastes the selected item back into the app that was previously focused
+- Automatically pastes the selected item back into the app
 - Assigns **1-9 / 0** as keyboard shortcuts for the top 10 entries and groups older items under **More**
 - Lets you open the history menu or clear history from the menu bar icon
-
-## Requirements
-
-- macOS 13 Ventura or later
-- No Apple Developer account required for local builds
 
 ## Build
 
 ### Build in Xcode
 
-1. Open `chlipist.xcodeproj` in Xcode 15 or later
+1. Open `chlipist.xcodeproj`
 2. Select the `chlipist` target
 3. Build with **Product > Build** (⌘B)
 4. Run with **Product > Run** (⌘R)
@@ -43,7 +37,7 @@ xcodebuild -project chlipist.xcodeproj \
 The app bundle is generated in `./.build/Build/Products/Release`.
 
 ```bash
-rsync -a ./.build/Build/Products/Release/chlipist.app /Applications
+rsync -av ./.build/Build/Products/Release/chlipist.app /Applications
 ```
 
 ## GitHub Actions Artifacts
@@ -75,27 +69,9 @@ After launching the app, grant the following permissions:
 ## History Storage
 
 - Clipboard history is stored in memory and on disk for the current user.
-- The storage path is `~/Library/Application Support/chlipist/clipboard-history.json`.
 - The app limits file and directory permissions to the current user, but the stored history is plain text.
 - The file may be included in backups such as Time Machine, so handle sensitive clipboard data accordingly.
 - Choosing **Clear History** removes both the in-memory and persisted history.
-
-## Project Structure
-
-```text
-chlipist/
-├── chlipist.xcodeproj/
-│   └── project.pbxproj
-└── chlipist/
-    ├── main.swift
-    ├── AppDelegate.swift
-    ├── ClipboardManager.swift
-    ├── HotKeyManager.swift
-    ├── ClipboardHistoryWindowController.swift
-    ├── Info.plist
-    ├── chlipist.entitlements
-    └── Assets.xcassets/
-```
 
 ## License
 
