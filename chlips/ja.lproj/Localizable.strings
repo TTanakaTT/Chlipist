@@ -7,3 +7,5 @@
 "alert.launchAtLoginFailed.title" = "ログイン時に起動の設定に失敗しました";
 "window.history.title" = "クリップボード履歴 — chlips";
 "history.count.format" = "最大%2$d件中 %1$d件";
+"history.empty" = "クリップボード履歴は空です";
+"history.more" = "さらに表示";

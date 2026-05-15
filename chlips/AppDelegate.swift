@@ -14,6 +14,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         enableLaunchAtLoginByDefault()
+        // Start workspace app tracking before the status item can open the history menu.
+        _ = ClipboardHistoryWindowController.shared
 
         setupStatusBarItem()
         checkAccessibilityPermission()

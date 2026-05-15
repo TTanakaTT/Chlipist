@@ -6,10 +6,10 @@ chlips is a macOS clipboard history app inspired by the Windows **Win + V** expe
 
 - Stores up to 50 copied text entries
 - Persists history in `Application Support/chlips/clipboard-history.json` for each user
-- Shows a floating history panel near the mouse cursor with **⌘⇧V**
+- Shows a native history menu near the mouse cursor with **⌘⇧V**
 - Automatically pastes the selected item back into the app that was previously focused
-- Displays shortcut badges for the top 10 entries with **1-9 / 0**
-- Lets you open the history panel or clear history from the menu bar icon
+- Assigns **1-9 / 0** as keyboard shortcuts for the top 10 entries and groups older items under **More**
+- Lets you open the history menu or clear history from the menu bar icon
 
 ## Requirements
 
@@ -70,7 +70,7 @@ After launching the app, grant the following permissions:
 
 2. **Launch at Login** — enabled automatically on first launch. You can turn it off later from the menu bar item **Launch at Login**.
 
-> **Note:** The global hotkey (**⌘⇧V**) uses the Carbon API, so opening the history panel does not require Accessibility permission. Only paste simulation requires it.
+> **Note:** The global hotkey (**⌘⇧V**) uses the Carbon API, so opening the history menu does not require Accessibility permission. Only paste simulation requires it.
 
 ## History Storage
 

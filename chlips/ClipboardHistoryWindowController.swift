@@ -1,233 +1,142 @@
 import Cocoa
 
-// MARK: - ClipboardHistoryWindowController
+/// Maximum total characters shown for a menu item title.
+/// When truncated, this allows up to 29 content characters plus one ellipsis.
+/// Keeping this at 30 helps the native menu stay compact.
+private let maxMenuItemCharacters = 30
+/// Maximum total characters shown for a menu item tooltip.
+private let maxMenuItemTooltipCharacters = 200
 
-/// Floating panel that shows clipboard history.
-/// - Triggered by the global ⌘⇧V hotkey (or the status-bar menu).
-/// - Keys 1–9 and 0 directly paste the top-10 entry; ↩ pastes the selected item; ⎋ closes.
-final class ClipboardHistoryWindowController: NSWindowController {
-
-    // MARK: - Singleton
+final class ClipboardHistoryWindowController: NSObject {
 
     static let shared = ClipboardHistoryWindowController()
+    private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    private static let maxTopLevelItems = shortcutKeyEquivalents.count
 
-    // MARK: - UI Components
+    /// Gives macOS time to finish re-activating the previous app before Cmd+V is posted.
+    private let pasteSimulationDelay: TimeInterval = 0.15
 
-    private var tableView: NSTableView!
-    private var scrollView: NSScrollView!
-    private var countLabel: NSTextField!
-
-    // MARK: - State
-
-    private var history: [String] = []
-    /// The app that was frontmost before we showed this panel.
     private var previousApp: NSRunningApplication?
-    private var keyMonitor: Any?
+    private var lastExternalApp: NSRunningApplication?
+    private var anchorWindow: NSWindow?
 
-    // MARK: - Init
+    private override init() {
+        super.init()
+        lastExternalApp = frontmostExternalApplication()
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(workspaceDidActivateApplication(_:)),
+            name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+    }
 
-    private init() {
-        let panel = HistoryPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 380),
-            styleMask: [.titled, .closable],
+    deinit {
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+
+    func showPanel() {
+        previousApp = frontmostExternalApplication() ?? lastExternalApp
+        let menu = buildMenu(from: ClipboardManager.shared.history)
+        present(menu)
+    }
+
+    @objc private func workspaceDidActivateApplication(_ notification: Notification) {
+        guard
+            let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+            app.processIdentifier != ProcessInfo.processInfo.processIdentifier
+        else {
+            return
+        }
+
+        lastExternalApp = app
+    }
+
+    private func frontmostExternalApplication() -> NSRunningApplication? {
+        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
+        return app.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : app
+    }
+
+    private func buildMenu(from history: [String]) -> NSMenu {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+
+        guard !history.isEmpty else {
+            let item = NSMenuItem(title: NSLocalizedString("history.empty", comment: ""), action: nil, keyEquivalent: "")
+            item.isEnabled = false
+            menu.addItem(item)
+            return menu
+        }
+
+        for (index, item) in history.prefix(Self.maxTopLevelItems).enumerated() {
+            menu.addItem(historyItem(for: item, keyEquivalent: Self.shortcutKeyEquivalents[index]))
+        }
+
+        if history.count > Self.maxTopLevelItems {
+            menu.addItem(.separator())
+
+            let moreItem = NSMenuItem(title: NSLocalizedString("history.more", comment: ""), action: nil, keyEquivalent: "")
+            let submenu = NSMenu(title: moreItem.title)
+            submenu.autoenablesItems = false
+
+            for item in history.dropFirst(Self.maxTopLevelItems) {
+                submenu.addItem(historyItem(for: item, keyEquivalent: ""))
+            }
+
+            moreItem.submenu = submenu
+            menu.addItem(moreItem)
+        }
+
+        return menu
+    }
+
+    private func historyItem(for item: String, keyEquivalent: String) -> NSMenuItem {
+        let menuItem = NSMenuItem(
+            title: item.menuDisplayTitle,
+            action: #selector(selectHistoryItem(_:)),
+            keyEquivalent: keyEquivalent
+        )
+        menuItem.target = self
+        menuItem.keyEquivalentModifierMask = []
+        menuItem.representedObject = item
+        menuItem.toolTip = item.menuDisplayToolTip
+        return menuItem
+    }
+
+    private func present(_ menu: NSMenu) {
+        let mouseLocation = NSEvent.mouseLocation
+        let frame = NSRect(x: mouseLocation.x, y: mouseLocation.y, width: 1, height: 1)
+        let anchorWindow = MenuAnchorWindow(
+            contentRect: frame,
+            styleMask: .borderless,
             backing: .buffered,
             defer: false
         )
-        panel.title = NSLocalizedString("window.history.title", comment: "")
-        panel.level = .floating
-        panel.isReleasedWhenClosed = false
-        panel.hidesOnDeactivate = false
+        anchorWindow.backgroundColor = .clear
+        anchorWindow.hasShadow = false
+        anchorWindow.ignoresMouseEvents = true
+        anchorWindow.isOpaque = false
+        anchorWindow.level = .statusBar
+        anchorWindow.collectionBehavior = [.transient, .ignoresCycle]
 
-        super.init(window: panel)
-        panel.delegate = self
-        setupUI()
-        setupKeyMonitor()
+        let anchorView = NSView(frame: NSRect(x: 0, y: 0, width: 1, height: 1))
+        anchorWindow.contentView = anchorView
+
+        self.anchorWindow = anchorWindow
+        anchorWindow.orderFrontRegardless()
+        menu.popUp(positioning: nil, at: .zero, in: anchorView)
+        anchorWindow.orderOut(nil)
+        self.anchorWindow = nil
     }
 
-    required init?(coder: NSCoder) { fatalError() }
-
-    // MARK: - UI Setup
-
-    private func setupUI() {
-        guard let contentView = window?.contentView else { return }
-        contentView.wantsLayer = true
-
-        // ── Count label ───────────────────────────────────────────────
-        countLabel = NSTextField(labelWithString: "")
-        countLabel.translatesAutoresizingMaskIntoConstraints = false
-        countLabel.font = NSFont.systemFont(ofSize: 11)
-        countLabel.textColor = .secondaryLabelColor
-        contentView.addSubview(countLabel)
-
-        // ── Table view inside a scroll view ───────────────────────────
-        scrollView = NSScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.hasVerticalScroller = true
-        scrollView.autohidesScrollers = true
-        scrollView.borderType = .lineBorder
-
-        tableView = NSTableView()
-        tableView.style = .plain
-        tableView.usesAlternatingRowBackgroundColors = true
-        tableView.rowHeight = 28
-        tableView.intercellSpacing = NSSize(width: 0, height: 1)
-        tableView.headerView = nil
-        tableView.target = self
-        tableView.doubleAction = #selector(rowDoubleClicked)
-        tableView.allowsEmptySelection = false
-        tableView.selectionHighlightStyle = .regular
-
-        let column = NSTableColumn(identifier: .init("ClipboardContent"))
-        column.minWidth = 100
-        tableView.addTableColumn(column)
-        tableView.delegate = self
-        tableView.dataSource = self
-
-        scrollView.documentView = tableView
-        contentView.addSubview(scrollView)
-
-        // ── Auto Layout ───────────────────────────────────────────────
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            scrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            scrollView.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -6),
-
-            countLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            countLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            countLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            countLabel.heightAnchor.constraint(equalToConstant: 16),
-        ])
-    }
-
-    // MARK: - Key Monitor
-
-    private func setupKeyMonitor() {
-        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self, self.window?.isKeyWindow == true else { return event }
-            return self.handleKeyDown(event)
-        }
-    }
-
-    private func handleKeyDown(_ event: NSEvent) -> NSEvent? {
-        if let shortcutIndex = shortcutIndex(for: event) {
-            guard shortcutIndex < history.count else { return nil }
-            tableView.selectRowIndexes(IndexSet(integer: shortcutIndex), byExtendingSelection: false)
-            tableView.scrollRowToVisible(shortcutIndex)
-            pasteItem(history[shortcutIndex])
-            return nil
-        }
-
-        switch event.keyCode {
-        case 36, 76: // Return / numpad Enter
-            pasteSelected()
-            return nil
-        case 53: // Escape
-            closePanel()
-            return nil
-        case 125: // ↓
-            guard !history.isEmpty else { return nil }
-            let next = min(tableView.selectedRow + 1, history.count - 1)
-            tableView.selectRowIndexes(IndexSet(integer: next), byExtendingSelection: false)
-            tableView.scrollRowToVisible(next)
-            return nil
-        case 126: // ↑
-            guard !history.isEmpty else { return nil }
-            let prev = max(tableView.selectedRow - 1, 0)
-            tableView.selectRowIndexes(IndexSet(integer: prev), byExtendingSelection: false)
-            tableView.scrollRowToVisible(prev)
-            return nil
-        default:
-            return event
-        }
-    }
-
-    private func shortcutIndex(for event: NSEvent) -> Int? {
-        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        guard modifiers.isEmpty else { return nil }
-
-        switch event.keyCode {
-        case 18, 83: return 0 // 1 / numpad 1
-        case 19, 84: return 1 // 2 / numpad 2
-        case 20, 85: return 2 // 3 / numpad 3
-        case 21, 86: return 3 // 4 / numpad 4
-        case 23, 87: return 4 // 5 / numpad 5
-        case 22, 88: return 5 // 6 / numpad 6
-        case 26, 89: return 6 // 7 / numpad 7
-        case 28, 91: return 7 // 8 / numpad 8
-        case 25, 92: return 8 // 9 / numpad 9
-        case 29, 82: return 9 // 0 / numpad 0
-        default: return nil
-        }
-    }
-
-    // MARK: - Show / Hide
-
-    func showPanel() {
-        // Capture the current frontmost app *before* we steal focus.
-        previousApp = NSWorkspace.shared.frontmostApplication
-
-        // Reload data from the manager.
-        history = ClipboardManager.shared.history
-        tableView.reloadData()
-        updateCountLabel()
-
-        // Select the first row.
-        if !history.isEmpty {
-            tableView.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
-            tableView.scrollRowToVisible(0)
-        }
-
-        // Position the panel near the mouse cursor.
-        positionNearMouse()
-
-        window?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        window?.makeFirstResponder(tableView)
-    }
-
-    func closePanel() {
-        window?.orderOut(nil)
-    }
-
-    // MARK: - Positioning
-
-    private func positionNearMouse() {
-        guard let window else { return }
-        let mouse = NSEvent.mouseLocation
-        let size = window.frame.size
-        var origin = NSPoint(x: mouse.x - size.width / 2, y: mouse.y - size.height)
-
-        if let screen = NSScreen.screens.first(where: { NSMouseInRect(mouse, $0.frame, false) }) ?? NSScreen.main {
-            let visible = screen.visibleFrame
-            origin.x = max(visible.minX + 8, min(origin.x, visible.maxX - size.width - 8))
-            origin.y = max(visible.minY + 8, min(origin.y, visible.maxY - size.height - 8))
-        }
-        window.setFrameOrigin(origin)
-    }
-
-    // MARK: - Constants
-
-    /// Delay between activating the previous app and synthesising ⌘V.
-    /// Gives macOS time to complete the app-activation transition (~100 ms
-    /// measured in practice; 150 ms adds a small safety margin).
-    private let pasteSimulationDelay: TimeInterval = 0.15
-
-    // MARK: - Paste
-
-    /// Pastes the currently selected row to the previous app.
-    func pasteSelected() {
-        guard tableView.selectedRow >= 0, tableView.selectedRow < history.count else { return }
-        pasteItem(history[tableView.selectedRow])
+    @objc private func selectHistoryItem(_ sender: NSMenuItem) {
+        guard let item = sender.representedObject as? String else { return }
+        pasteItem(item)
     }
 
     private func pasteItem(_ item: String) {
-        closePanel()
-
-        // Put the chosen item on the pasteboard.
         ClipboardManager.shared.setClipboard(item)
 
-        // Activate the previous app, then simulate ⌘V.
         guard let app = previousApp else { return }
         app.activate(options: .activateIgnoringOtherApps)
 
@@ -236,8 +145,6 @@ final class ClipboardHistoryWindowController: NSWindowController {
         }
     }
 
-    /// Synthesises a ⌘V key event so the previously active app pastes.
-    /// Requires Accessibility permission (the user is prompted at launch).
     private func simulateCmdV() {
         guard let source = CGEventSource(stateID: .hidSystemState) else { return }
         let vKey: CGKeyCode = 9 // kVK_ANSI_V
@@ -250,146 +157,79 @@ final class ClipboardHistoryWindowController: NSWindowController {
         keyUp?.flags = .maskCommand
         keyUp?.post(tap: .cghidEventTap)
     }
-
-    // MARK: - Count Label
-
-    private func updateCountLabel() {
-        let total = ClipboardManager.shared.history.count
-        countLabel.stringValue = String.localizedStringWithFormat(
-            NSLocalizedString("history.count.format", comment: ""),
-            total,
-            ClipboardManager.shared.maxHistoryCount
-        )
-    }
-
-    // MARK: - Double-click
-
-    @objc private func rowDoubleClicked() {
-        let row = tableView.clickedRow
-        guard row >= 0, row < history.count else { return }
-        pasteItem(history[row])
-    }
 }
 
-// MARK: - NSTableViewDataSource
-
-extension ClipboardHistoryWindowController: NSTableViewDataSource {
-    func numberOfRows(in tableView: NSTableView) -> Int { history.count }
+private final class MenuAnchorWindow: NSWindow {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
 }
-
-// MARK: - NSTableViewDelegate
-
-private let shortcutBadgeTag = 42
-private let shortcutLabels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-
-extension ClipboardHistoryWindowController: NSTableViewDelegate {
-
-    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let identifier = NSUserInterfaceItemIdentifier("HistoryCell")
-        var cell = tableView.makeView(withIdentifier: identifier, owner: self) as? NSTableCellView
-
-        if cell == nil {
-            cell = NSTableCellView()
-            cell?.identifier = identifier
-
-            // Shortcut badge (left)
-            let badge = NSTextField(labelWithString: "")
-            badge.tag = shortcutBadgeTag
-            badge.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
-            badge.textColor = .tertiaryLabelColor
-            badge.alignment = .center
-            badge.translatesAutoresizingMaskIntoConstraints = false
-            cell?.addSubview(badge)
-
-            // Content text field (right)
-            let tf = NSTextField()
-            tf.isBezeled = false
-            tf.drawsBackground = false
-            tf.isEditable = false
-            tf.isSelectable = false
-            tf.lineBreakMode = .byClipping
-            tf.translatesAutoresizingMaskIntoConstraints = false
-            cell?.addSubview(tf)
-            cell?.textField = tf
-
-            NSLayoutConstraint.activate([
-                badge.leadingAnchor.constraint(equalTo: cell!.leadingAnchor, constant: 6),
-                badge.widthAnchor.constraint(equalToConstant: 18),
-                badge.centerYAnchor.constraint(equalTo: cell!.centerYAnchor),
-
-                tf.leadingAnchor.constraint(equalTo: badge.trailingAnchor, constant: 4),
-                tf.trailingAnchor.constraint(equalTo: cell!.trailingAnchor, constant: -8),
-                tf.centerYAnchor.constraint(equalTo: cell!.centerYAnchor),
-            ])
-        }
-
-        // Update shortcut badge per row
-        if let badge = cell?.viewWithTag(shortcutBadgeTag) as? NSTextField {
-            badge.stringValue = row < shortcutLabels.count ? shortcutLabels[row] : ""
-        }
-
-        let raw = history[row]
-        // Collapse newlines for single-line display.
-        let display = raw
-            .replacingOccurrences(of: "\r\n", with: "↵")
-            .replacingOccurrences(of: "\n", with: "↵")
-            .replacingOccurrences(of: "\r", with: "↵")
-
-        // badge (6 leading + 18 width + 4 gap) + trailing 8 = 36 px overhead
-        let tfWidth = (tableColumn?.width ?? 280) - 36
-        let font = cell?.textField?.font ?? NSFont.systemFont(ofSize: 13)
-        cell?.textField?.stringValue = display.truncated(toWidth: tfWidth, font: font)
-        cell?.toolTip = raw.count > 200 ? String(raw.prefix(200)) + " …" : raw
-
-        return cell
-    }
-}
-
-// MARK: - NSWindowDelegate
-
-extension ClipboardHistoryWindowController: NSWindowDelegate {
-    func windowWillClose(_ notification: Notification) {
-        history = []
-        tableView.reloadData()
-    }
-
-    /// Close the panel automatically when it loses focus so the user can
-    /// interact with other windows without the panel staying in the way.
-    func windowDidResignKey(_ notification: Notification) {
-        guard window?.isVisible == true else { return }
-        closePanel()
-    }
-}
-
-// MARK: - HistoryPanel
-
-/// NSPanel subclass that can always become key/main.
-private class HistoryPanel: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
-// MARK: - String helpers
 
 private extension String {
-    /// Returns a version of the string that fits within `maxWidth` points
-    /// using the given font, appending " …" when truncation is needed.
-    func truncated(toWidth maxWidth: CGFloat, font: NSFont) -> String {
-        let attrs: [NSAttributedString.Key: Any] = [.font: font]
-        guard (self as NSString).size(withAttributes: attrs).width > maxWidth else { return self }
-        let suffix = " …"
-        let suffixWidth = (suffix as NSString).size(withAttributes: attrs).width
-        let target = maxWidth - suffixWidth
-        var lo = 0, hi = self.count
-        while lo < hi {
-            let mid = (lo + hi + 1) / 2
-            let s = String(self.prefix(mid))
-            if (s as NSString).size(withAttributes: attrs).width <= target {
-                lo = mid
-            } else {
-                hi = mid - 1
+    var normalizedMenuDisplayText: String {
+        // Add a visible " ↵ " marker before collapsing whitespace so multi-line
+        // clipboard entries still hint that they were originally line-broken.
+        collapsingLineBreakMarkers()
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
+    }
+
+    var menuDisplayTitle: String {
+        let normalized = normalizedMenuDisplayText
+        guard !normalized.isEmpty else { return "…" }
+        guard normalized.count > maxMenuItemCharacters else { return normalized }
+        return String(normalized.prefix(maxMenuItemCharacters - 1)) + "…"
+    }
+
+    var menuDisplayToolTip: String {
+        let normalized = normalizedTooltipText
+        guard !normalized.isEmpty else { return "…" }
+        guard normalized.count > maxMenuItemTooltipCharacters else { return normalized }
+        return String(normalized.prefix(maxMenuItemTooltipCharacters - 1)) + "…"
+    }
+
+    private func collapsingLineBreakMarkers() -> String {
+        replacingLineBreaks(with: " ↵ ")
+    }
+
+    private var normalizedTooltipText: String {
+        replacingLineBreaks(with: "\n")
+    }
+
+    private func replacingLineBreaks(with replacement: String) -> String {
+        let newlineScalarCount = unicodeScalars.reduce(into: 0) { count, scalar in
+            if scalar == "\n" || scalar == "\r" {
+                count += 1
             }
         }
-        return String(self.prefix(lo)) + suffix
+        var result = String()
+        let extraCapacity = newlineScalarCount * max(0, replacement.utf16.count - 1)
+        result.reserveCapacity(utf16.count + extraCapacity)
+        var index = startIndex
+
+        while index < endIndex {
+            let character = self[index]
+
+            if character == "\r" {
+                let nextIndex = self.index(after: index)
+                // Treat CRLF as a single line break so both menu titles and
+                // tooltips preserve the original structure without doubling separators.
+                if nextIndex < endIndex, self[nextIndex] == "\n" {
+                    index = nextIndex
+                }
+                result.append(replacement)
+                index = self.index(after: index)
+                continue
+            }
+
+            if character == "\n" {
+                result.append(replacement)
+            } else {
+                result.append(character)
+            }
+
+            index = self.index(after: index)
+        }
+
+        return result
     }
 }
