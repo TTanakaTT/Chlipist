@@ -75,17 +75,15 @@ final class ClipboardManager {
 
         guard let text = pb.string(forType: .string), !text.isEmpty else { return }
 
-        // De-duplicate: don't add if already at the top of the list.
-        if text == history.first { return }
+        let updatedHistory = ClipboardHistory.updatedHistory(
+            afterRecording: text,
+            in: history,
+            maxCount: maxHistoryCount
+        )
 
-        // Remove duplicate entry deeper in the list if it exists.
-        history.removeAll { $0 == text }
+        guard updatedHistory != history else { return }
 
-        history.insert(text, at: 0)
-
-        if history.count > maxHistoryCount {
-            history.removeLast(history.count - maxHistoryCount)
-        }
+        history = updatedHistory
 
         saveHistory()
     }
@@ -96,7 +94,7 @@ final class ClipboardManager {
         do {
             let data = try Data(contentsOf: fileURL)
             let decoded = try JSONDecoder().decode([String].self, from: data)
-            history = Array(decoded.prefix(maxHistoryCount)).filter { !$0.isEmpty }
+            history = ClipboardHistory.sanitizedPersistedHistory(decoded, maxCount: maxHistoryCount)
         } catch let error as NSError
             where isCocoaError(error, code: CocoaError.fileReadNoSuchFile.rawValue) {
             return
