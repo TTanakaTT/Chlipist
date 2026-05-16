@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Lint Swift sources
+        run: make lint
+
       - name: Run unit tests
         run: |
           xcodebuild -project chlipist.xcodeproj \

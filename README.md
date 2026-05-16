@@ -40,6 +40,32 @@ The app bundle is generated in `./.build/Build/Products/Release`.
 rsync -av ./.build/Build/Products/Release/chlipist.app /Applications
 ```
 
+## Formatting and Linting
+
+This repository uses the default `swift-format` rules via `make`.
+
+```bash
+make format
+make lint
+```
+
+- `make format` rewrites Swift files in `chlipist` and `chlipistTests`.
+- `make lint` checks the same paths with `swift-format lint --strict`.
+- CI uses the same `make lint` target before test and build jobs.
+
+`Makefile` invokes `xcrun swift-format`, so you need an Xcode toolchain that includes `swift-format`.
+
+### Git Hook
+
+To run the same formatting and linting checks before each commit, enable the repository-managed hook:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit
+```
+
+The pre-commit hook runs `make format` and `make lint` for staged Swift files, then re-stages those files.
+
 ## GitHub Actions Artifacts
 
 The GitHub Actions workflow re-signs the built app with an ad-hoc signature. This avoids the damaged-bundle state that can happen when `xcodebuild` runs with signing disabled on GitHub Actions.
@@ -76,3 +102,7 @@ After launching the app, grant the following permissions:
 ## License
 
 Sample code for personal use.
+
+## next
+- リリースを作成する仕組み
+- ui、履歴を表示→ペースト、app実行のたびにメニューのところで実行されていること、ショートカットで貼り付けられることがわかるように
