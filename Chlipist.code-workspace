@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+      {
+        "text": "Create an English commit message in a single line, following the Semantic Commit Message and Commit Message Guideline.",
+      },
+    ],
+    "chat.agent.maxRequests": 100,
+  },
+}

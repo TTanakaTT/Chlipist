@@ -1,0 +1,55 @@
+name: Build app
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    env:
+      DERIVED_DATA_PATH: ./.build
+      APP_PATH: ./.build/Build/Products/Release/Chlipist.app
+      DMG_STAGING_PATH: ./.build/dmg
+      DMG_PATH: ./Chlipist.dmg
+      DMG_VOLUME_NAME: Chlipist
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Build Release app
+        run: |
+          make build-release-app \
+            DERIVED_DATA_PATH="$DERIVED_DATA_PATH"
+
+      - name: Re-sign app bundle with ad-hoc identity
+        run: |
+          sh ./scripts/resign-app.sh "$APP_PATH"
+
+      - name: Archive DMG
+        run: |
+          sh ./scripts/create-dmg.sh \
+            "$APP_PATH" \
+            "$DMG_STAGING_PATH" \
+            "$DMG_PATH" \
+            "$DMG_VOLUME_NAME"
+
+      - name: Summarize artifact status
+        run: |
+          {
+            echo '## Artifact status'
+            echo
+            echo '- Re-signed with an ad-hoc signature so the app bundle is internally valid'
+            echo '- Not notarized; first launch on another Mac requires the usual trust or quarantine-bypass step for personal use'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Chlipist-dmg
+          path: ./Chlipist.dmg
+          if-no-files-found: error
