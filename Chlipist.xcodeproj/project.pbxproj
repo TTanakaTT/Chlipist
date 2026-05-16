@@ -413,7 +413,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Chlipist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -441,7 +441,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Chlipist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -464,7 +464,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipistTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ChlipistTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Chlipist";
@@ -486,7 +486,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipistTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ChlipistTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Chlipist";
