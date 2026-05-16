@@ -25,8 +25,8 @@ jobs:
 
       - name: Run unit tests
         run: |
-          xcodebuild -project chlipist.xcodeproj \
-                     -scheme chlipist \
+          xcodebuild -project Chlipist.xcodeproj \
+                     -scheme Chlipist \
                      -destination 'platform=macOS' \
                      -derivedDataPath "$DERIVED_DATA_PATH" \
                      CODE_SIGN_IDENTITY="" \

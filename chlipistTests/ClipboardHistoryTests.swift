@@ -1,7 +1,7 @@
 import CryptoKit
 import XCTest
 
-@testable import chlipist
+@testable import Chlipist
 
 final class ClipboardHistoryTests: XCTestCase {
   func testUpdatedHistoryAddsNewestItemToFront() {

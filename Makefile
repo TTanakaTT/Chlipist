@@ -1,9 +1,9 @@
 SWIFT_FORMAT = xcrun swift-format
-SWIFT_TARGETS = chlipist chlipistTests
+SWIFT_TARGETS = Chlipist ChlipistTests
 FILES ?= $(SWIFT_TARGETS)
 XCODEBUILD = xcodebuild
-XCODE_PROJECT = chlipist.xcodeproj
-XCODE_SCHEME = chlipist
+XCODE_PROJECT = Chlipist.xcodeproj
+XCODE_SCHEME = Chlipist
 XCODE_CONFIGURATION ?= Release
 DERIVED_DATA_PATH ?= ./.build
 MARKETING_VERSION ?= 0.0.1

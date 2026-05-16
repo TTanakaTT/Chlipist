@@ -1,6 +1,6 @@
-# chlipist
+# Chlipist
 
-chlipist is a macOS clipboard history app.
+Chlipist is a macOS clipboard history app.
 
 ## Features
 
@@ -14,8 +14,8 @@ chlipist is a macOS clipboard history app.
 
 ### Build in Xcode
 
-1. Open `chlipist.xcodeproj`
-2. Select the `chlipist` target
+1. Open `Chlipist.xcodeproj`
+2. Select the `Chlipist` target
 3. Build with **Product > Build** (⌘B)
 4. Run with **Product > Run** (⌘R)
 
@@ -24,8 +24,8 @@ Code signing is already disabled for local builds.
 ### Build from the command line
 
 ```bash
-xcodebuild -project chlipist.xcodeproj \
-           -scheme chlipist \
+xcodebuild -project Chlipist.xcodeproj \
+           -scheme Chlipist \
            -configuration Release \
            -derivedDataPath ./.build \
            CODE_SIGN_IDENTITY="" \
@@ -49,7 +49,7 @@ make format
 make lint
 ```
 
-- `make format` rewrites Swift files in `chlipist` and `chlipistTests`.
+- `make format` rewrites Swift files in `Chlipist` and `ChlipistTests`.
 - `make lint` checks the same paths with `swift-format lint --strict`.
 - CI uses the same `make lint` target before test and build jobs.
 
@@ -85,7 +85,7 @@ Depending on the macOS version, you can also use Finder's context menu or allow 
 After launching the app, grant the following permissions:
 
 1. **Accessibility** — required to simulate ⌘V in other apps
-   Add **chlipist** in **System Settings > Privacy & Security > Accessibility**.
+   Add **Chlipist** in **System Settings > Privacy & Security > Accessibility**.
    The app prompts for this automatically on first launch.
 
 2. **Launch at Login** — enabled automatically on first launch. You can turn it off later from the menu bar item **Launch at Login**.
@@ -107,6 +107,4 @@ After launching the app, grant the following permissions:
 Sample code for personal use.
 
 ## next
-- リリースを作成する仕組み
 - ui、履歴を表示→ペースト、app実行のたびにメニューのところで実行されていること、ショートカットで貼り付けられることがわかるように
-- icon

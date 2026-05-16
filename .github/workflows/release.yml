@@ -16,7 +16,7 @@ jobs:
       APP_PATH: ./.build/Build/Products/Release/Chlipist.app
       DMG_STAGING_PATH: ./.build/dmg
       DMG_PATH: ./Chlipist.dmg
-      DMG_VOLUME_NAME: chlipist
+      DMG_VOLUME_NAME: Chlipist
     steps:
       - name: Checkout
         uses: actions/checkout@v5
