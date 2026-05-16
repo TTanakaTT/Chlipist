@@ -108,3 +108,4 @@ Sample code for personal use.
 
 ## next
 - ui、履歴を表示→ペースト、app実行のたびにメニューのところで実行されていること、ショートカットで貼り付けられることがわかるように
+- tooltip要らない
