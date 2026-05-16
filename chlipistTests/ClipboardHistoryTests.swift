@@ -1,3 +1,4 @@
+import CryptoKit
 import XCTest
 
 @testable import chlipist
@@ -50,5 +51,49 @@ final class ClipboardHistoryTests: XCTestCase {
     )
 
     XCTAssertEqual(history, ["third", "second"])
+  }
+
+  func testEncryptedPersistenceRoundTripsHistory() throws {
+    let key = SymmetricKey(data: Data(repeating: 0xAB, count: 32))
+    let payload = try ClipboardHistoryPersistence.encryptedData(
+      for: ["third", "second", "first"],
+      maxCount: 50,
+      using: key
+    )
+
+    let loadResult = try ClipboardHistoryPersistence.loadResult(
+      from: payload,
+      maxCount: 50,
+      using: key
+    )
+
+    XCTAssertEqual(loadResult.history, ["third", "second", "first"])
+    XCTAssertFalse(loadResult.needsMigration)
+  }
+
+  func testEncryptedPersistenceRejectsMalformedPayload() {
+    let key = SymmetricKey(data: Data(repeating: 0xCD, count: 32))
+
+    XCTAssertThrowsError(
+      try ClipboardHistoryPersistence.loadResult(
+        from: Data("CHLP1".utf8),
+        maxCount: 50,
+        using: key
+      )
+    )
+  }
+
+  func testLegacyPersistedHistoryLoadsAndMarksMigration() throws {
+    let key = SymmetricKey(data: Data(repeating: 0xEF, count: 32))
+    let legacyData = try JSONEncoder().encode(["third", "", "second", "first"])
+
+    let loadResult = try ClipboardHistoryPersistence.loadResult(
+      from: legacyData,
+      maxCount: 3,
+      using: key
+    )
+
+    XCTAssertEqual(loadResult.history, ["third", "second"])
+    XCTAssertTrue(loadResult.needsMigration)
   }
 }

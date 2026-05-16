@@ -95,8 +95,11 @@ After launching the app, grant the following permissions:
 ## History Storage
 
 - Clipboard history is stored in memory and on disk for the current user.
-- The app limits file and directory permissions to the current user, but the stored history is plain text.
-- The file may be included in backups such as Time Machine, so handle sensitive clipboard data accordingly.
+- Persisted clipboard history is encrypted at rest before it is written to disk.
+- The encryption key is stored in the local login Keychain as a device-local item and is not intended to sync through iCloud Keychain.
+- The app still limits file and directory permissions to the current user.
+- The history storage directory and persisted history file are marked excluded from normal backups such as Time Machine.
+- Clipboard history is still application-managed data, not the OS-managed transient clipboard itself.
 - Choosing **Clear History** removes both the in-memory and persisted history.
 
 ## License

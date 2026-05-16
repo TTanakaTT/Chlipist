@@ -1,4 +1,6 @@
 import Cocoa
+import CryptoKit
+import Security
 
 /// Monitors NSPasteboard and maintains a history of copied text items.
 final class ClipboardManager {
@@ -27,6 +29,8 @@ final class ClipboardManager {
   private let pollingInterval: TimeInterval = 0.5
   private let persistenceDirectoryName = "chlipist"
   private let persistenceFileName = "clipboard-history.json"
+  private let keychainService = "chlipist.clipboard-history"
+  private let keychainAccount = "default"
 
   // MARK: - Monitoring
 
@@ -94,8 +98,17 @@ final class ClipboardManager {
 
     do {
       let data = try Data(contentsOf: fileURL)
-      let decoded = try JSONDecoder().decode([String].self, from: data)
-      history = ClipboardHistory.sanitizedPersistedHistory(decoded, maxCount: maxHistoryCount)
+      let persistenceKey = try loadOrCreatePersistenceKey()
+      let loadResult = try ClipboardHistoryPersistence.loadResult(
+        from: data,
+        maxCount: maxHistoryCount,
+        using: persistenceKey
+      )
+      history = loadResult.history
+
+      if loadResult.needsMigration {
+        try persistHistory()
+      }
     } catch let error as NSError
       where isCocoaError(error, code: CocoaError.fileReadNoSuchFile.rawValue)
     {
@@ -122,7 +135,12 @@ final class ClipboardManager {
     }
 
     try ensurePersistenceDirectoryExists(for: fileURL)
-    let data = try JSONEncoder().encode(Array(history.prefix(maxHistoryCount)))
+    let persistenceKey = try loadOrCreatePersistenceKey()
+    let data = try ClipboardHistoryPersistence.encryptedData(
+      for: history,
+      maxCount: maxHistoryCount,
+      using: persistenceKey
+    )
     try writeDataSecurely(data, to: fileURL)
   }
 
@@ -147,6 +165,7 @@ final class ClipboardManager {
       }
 
       try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
+      try excludeFromBackup(directoryURL)
       return
     }
 
@@ -168,6 +187,8 @@ final class ClipboardManager {
 
       try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directoryURL.path)
     }
+
+    try excludeFromBackup(directoryURL)
   }
 
   private func removePersistedHistoryIfNeeded(at fileURL: URL) throws {
@@ -210,10 +231,101 @@ final class ClipboardManager {
       try fileManager.moveItem(at: tempURL, to: fileURL)
     }
 
+    try excludeFromBackup(fileURL)
+
     shouldRemoveTempFile = false
+  }
+
+  private func loadOrCreatePersistenceKey() throws -> SymmetricKey {
+    if let persistedKeyData = try loadPersistedKeyData() {
+      return SymmetricKey(data: persistedKeyData)
+    }
+
+    let key = SymmetricKey(size: .bits256)
+    try savePersistedKeyData(key.dataRepresentation)
+    return key
+  }
+
+  private func loadPersistedKeyData() throws -> Data? {
+    let query: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: keychainService,
+      kSecAttrAccount as String: keychainAccount,
+      kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
+      kSecMatchLimit as String: kSecMatchLimitOne,
+      kSecReturnData as String: kCFBooleanTrue as Any,
+    ]
+
+    var item: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &item)
+
+    switch status {
+    case errSecSuccess:
+      guard let data = item as? Data else {
+        throw ClipboardManagerKeychainError.unexpectedKeyData
+      }
+      return data
+    case errSecItemNotFound:
+      return nil
+    default:
+      throw ClipboardManagerKeychainError.osStatus(status)
+    }
+  }
+
+  private func savePersistedKeyData(_ data: Data) throws {
+    let addQuery: [String: Any] = [
+      kSecClass as String: kSecClassGenericPassword,
+      kSecAttrService as String: keychainService,
+      kSecAttrAccount as String: keychainAccount,
+      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+      kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
+      kSecValueData as String: data,
+    ]
+
+    let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+
+    switch addStatus {
+    case errSecSuccess:
+      return
+    case errSecDuplicateItem:
+      let query: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: keychainService,
+        kSecAttrAccount as String: keychainAccount,
+        kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
+      ]
+      let attributesToUpdate: [String: Any] = [
+        kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+        kSecValueData as String: data,
+      ]
+      let updateStatus = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
+      guard updateStatus == errSecSuccess else {
+        throw ClipboardManagerKeychainError.osStatus(updateStatus)
+      }
+    default:
+      throw ClipboardManagerKeychainError.osStatus(addStatus)
+    }
+  }
+
+  private func excludeFromBackup(_ url: URL) throws {
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = true
+    var mutableURL = url
+    try mutableURL.setResourceValues(values)
   }
 
   private func isCocoaError(_ error: NSError, code: Int) -> Bool {
     error.domain == NSCocoaErrorDomain && error.code == code
+  }
+}
+
+private enum ClipboardManagerKeychainError: Error {
+  case unexpectedKeyData
+  case osStatus(OSStatus)
+}
+
+extension SymmetricKey {
+  var dataRepresentation: Data {
+    withUnsafeBytes { Data($0) }
   }
 }
