@@ -16,7 +16,6 @@
 		AA00000000000020 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000016 /* Carbon.framework */; };
 		AA00000000000021 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000022 /* ServiceManagement.framework */; };
 		AA00000000000023 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000060 /* Localizable.strings */; };
-		AA00000000000024 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000061 /* InfoPlist.strings */; };
 		AA00000000000025 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000066 /* ClipboardHistory.swift */; };
 		AA00000000000026 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000067 /* ClipboardHistoryTests.swift */; };
 		AA00000000000027 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000069 /* XCTest.framework */; };
@@ -46,8 +45,6 @@
 		AA00000000000019 /* Chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000062 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AA00000000000063 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AA00000000000064 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		AA00000000000065 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AA00000000000066 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
 		AA00000000000067 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryTests.swift; sourceTree = "<group>"; };
 		AA00000000000068 /* ChlipistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChlipistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,7 +102,6 @@
 				AA00000000000014 /* ClipboardHistoryWindowController.swift */,
 				AA00000000000015 /* Assets.xcassets */,
 				AA00000000000060 /* Localizable.strings */,
-				AA00000000000061 /* InfoPlist.strings */,
 				AA00000000000017 /* Info.plist */,
 				AA00000000000018 /* Chlipist.entitlements */,
 			);
@@ -140,15 +136,6 @@
 				AA00000000000063 /* ja */,
 			);
 			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-		AA00000000000061 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				AA00000000000064 /* en */,
-				AA00000000000065 /* ja */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -235,7 +222,6 @@
 			files = (
 				AA0000000000001F /* Assets.xcassets in Resources */,
 				AA00000000000023 /* Localizable.strings in Resources */,
-				AA00000000000024 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,7 +5,5 @@
 "menu.clearHistory" = "Clear History";
 "menu.quit" = "Quit Chlipist";
 "alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
-"window.history.title" = "Clipboard History — Chlipist";
-"history.count.format" = "%1$d items / max %2$d";
 "history.empty" = "Clipboard history is empty";
 "history.more" = "More";
