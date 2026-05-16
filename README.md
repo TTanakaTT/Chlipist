@@ -37,7 +37,7 @@ xcodebuild -project chlipist.xcodeproj \
 The app bundle is generated in `./.build/Build/Products/Release`.
 
 ```bash
-rsync -av ./.build/Build/Products/Release/chlipist.app /Applications
+rsync -av ./.build/Build/Products/Release/Chlipist.app /Applications
 ```
 
 ## Formatting and Linting
@@ -75,7 +75,7 @@ The artifact is still not notarized, so macOS may ask you to trust the app on fi
 If the downloaded app is blocked by quarantine, remove the attribute after copying the app to `/Applications`:
 
 ```bash
-xattr -dr com.apple.quarantine /Applications/chlipist.app
+xattr -dr com.apple.quarantine /Applications/Chlipist.app
 ```
 
 Depending on the macOS version, you can also use Finder's context menu or allow the app from **System Settings > Privacy & Security** after the first launch attempt.
@@ -109,3 +109,4 @@ Sample code for personal use.
 ## next
 - リリースを作成する仕組み
 - ui、履歴を表示→ペースト、app実行のたびにメニューのところで実行されていること、ショートカットで貼り付けられることがわかるように
+- icon

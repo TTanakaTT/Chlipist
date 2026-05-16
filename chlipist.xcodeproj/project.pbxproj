@@ -43,7 +43,7 @@
 		AA00000000000022 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		AA00000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA00000000000018 /* chlipist.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chlipist.entitlements; sourceTree = "<group>"; };
-		AA00000000000019 /* chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000019 /* Chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000062 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AA00000000000063 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AA00000000000064 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -88,7 +88,7 @@
 		AA00000000000031 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA00000000000019 /* chlipist.app */,
+				AA00000000000019 /* Chlipist.app */,
 				AA00000000000068 /* chlipistTests.xctest */,
 			);
 			name = Products;
@@ -168,7 +168,7 @@
 			);
 			name = chlipist;
 			productName = chlipist;
-			productReference = AA00000000000019 /* chlipist.app */;
+			productReference = AA00000000000019 /* Chlipist.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AA0000000000006E /* chlipistTests */ = {
@@ -463,7 +463,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipistTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/chlipist";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/chlipist";
 			};
 			name = Debug;
 		};
@@ -485,7 +485,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipistTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/chlipist";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/chlipist";
 			};
 			name = Release;
 		};

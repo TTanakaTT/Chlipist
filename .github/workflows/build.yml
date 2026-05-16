@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
     env:
       DERIVED_DATA_PATH: ./.build
-      APP_PATH: ./.build/Build/Products/Release/chlipist.app
+      APP_PATH: ./.build/Build/Products/Release/Chlipist.app
       DMG_STAGING_PATH: ./.build/dmg
       DMG_PATH: ./chlipist.dmg
       DMG_VOLUME_NAME: chlipist
@@ -44,7 +44,7 @@ jobs:
           rm -rf "$DMG_STAGING_PATH"
           rm -f "$DMG_PATH"
           mkdir -p "$DMG_STAGING_PATH"
-          cp -R "$APP_PATH" "$DMG_STAGING_PATH/chlipist.app"
+          cp -R "$APP_PATH" "$DMG_STAGING_PATH/Chlipist.app"
           ln -s /Applications "$DMG_STAGING_PATH/Drag To Applications"
 
           hdiutil create \
