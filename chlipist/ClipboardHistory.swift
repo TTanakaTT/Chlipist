@@ -28,27 +28,6 @@ enum ClipboardHistoryPersistenceError: Error {
 }
 
 struct ClipboardHistoryPersistence {
-  enum LoadResult {
-    case current([String])
-    case migratedLegacy([String])
-
-    var history: [String] {
-      switch self {
-      case .current(let history), .migratedLegacy(let history):
-        return history
-      }
-    }
-
-    var needsMigration: Bool {
-      switch self {
-      case .current:
-        return false
-      case .migratedLegacy:
-        return true
-      }
-    }
-  }
-
   private static let formatMagic = Data("CHLP1".utf8)
 
   static func encryptedData(
@@ -71,28 +50,23 @@ struct ClipboardHistoryPersistence {
     return payload
   }
 
-  static func loadResult(
+  static func history(
     from data: Data,
     maxCount: Int,
     using key: SymmetricKey
-  ) throws -> LoadResult {
-    if data.starts(with: formatMagic) {
-      let encryptedPayload = data.dropFirst(formatMagic.count)
-      guard !encryptedPayload.isEmpty else {
-        throw ClipboardHistoryPersistenceError.malformedEncryptedPayload
-      }
-
-      let sealedBox = try AES.GCM.SealedBox(combined: Data(encryptedPayload))
-      let decryptedData = try AES.GCM.open(sealedBox, using: key)
-      let decodedHistory = try JSONDecoder().decode([String].self, from: decryptedData)
-      return .current(
-        ClipboardHistory.sanitizedPersistedHistory(decodedHistory, maxCount: maxCount)
-      )
+  ) throws -> [String] {
+    guard data.starts(with: formatMagic) else {
+      throw ClipboardHistoryPersistenceError.malformedEncryptedPayload
     }
 
-    let decodedHistory = try JSONDecoder().decode([String].self, from: data)
-    return .migratedLegacy(
-      ClipboardHistory.sanitizedPersistedHistory(decodedHistory, maxCount: maxCount)
-    )
+    let encryptedPayload = data.dropFirst(formatMagic.count)
+    guard !encryptedPayload.isEmpty else {
+      throw ClipboardHistoryPersistenceError.malformedEncryptedPayload
+    }
+
+    let sealedBox = try AES.GCM.SealedBox(combined: Data(encryptedPayload))
+    let decryptedData = try AES.GCM.open(sealedBox, using: key)
+    let decodedHistory = try JSONDecoder().decode([String].self, from: decryptedData)
+    return ClipboardHistory.sanitizedPersistedHistory(decodedHistory, maxCount: maxCount)
   }
 }

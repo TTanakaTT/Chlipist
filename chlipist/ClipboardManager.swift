@@ -28,7 +28,7 @@ final class ClipboardManager {
   /// How often to poll NSPasteboard for changes (seconds).
   private let pollingInterval: TimeInterval = 0.5
   private let persistenceDirectoryName = "chlipist"
-  private let persistenceFileName = "clipboard-history.json"
+  private let persistenceFileName = "data"
   private let keychainService = "chlipist.clipboard-history"
   private let keychainAccount = "default"
 
@@ -99,16 +99,11 @@ final class ClipboardManager {
     do {
       let data = try Data(contentsOf: fileURL)
       let persistenceKey = try loadOrCreatePersistenceKey()
-      let loadResult = try ClipboardHistoryPersistence.loadResult(
+      history = try ClipboardHistoryPersistence.history(
         from: data,
         maxCount: maxHistoryCount,
         using: persistenceKey
       )
-      history = loadResult.history
-
-      if loadResult.needsMigration {
-        try persistHistory()
-      }
     } catch let error as NSError
       where isCocoaError(error, code: CocoaError.fileReadNoSuchFile.rawValue)
     {
