@@ -24,14 +24,7 @@ Code signing is already disabled for local builds.
 ### Build from the command line
 
 ```bash
-xcodebuild -project Chlipist.xcodeproj \
-           -scheme Chlipist \
-           -configuration Release \
-           -derivedDataPath ./.build \
-           CODE_SIGN_IDENTITY="" \
-           CODE_SIGNING_REQUIRED=NO \
-           CODE_SIGNING_ALLOWED=NO \
-           build
+make build
 ```
 
 The app bundle is generated in `./.build/Build/Products/Release`.

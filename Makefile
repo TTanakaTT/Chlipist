@@ -22,7 +22,7 @@ lint:
 
 check: lint
 
-build-release-app:
+build:
 	$(XCODEBUILD) -project $(XCODE_PROJECT) \
 		-scheme $(XCODE_SCHEME) \
 		-configuration $(XCODE_CONFIGURATION) \

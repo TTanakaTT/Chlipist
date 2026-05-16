@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v5
       - name: Build Release app
         run: |
-          make build-release-app \
+          make build \
             DERIVED_DATA_PATH="$DERIVED_DATA_PATH"
 
       - name: Re-sign app bundle with ad-hoc identity

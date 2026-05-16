@@ -66,7 +66,7 @@ jobs:
 
       - name: Build Release app
         run: |
-          make build-release-app \
+          make build \
             DERIVED_DATA_PATH="$DERIVED_DATA_PATH" \
             MARKETING_VERSION="$MARKETING_VERSION" \
             CURRENT_PROJECT_VERSION="$CURRENT_PROJECT_VERSION"
