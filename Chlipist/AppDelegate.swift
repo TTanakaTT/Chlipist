@@ -5,6 +5,7 @@ import ServiceManagement
 class AppDelegate: NSObject, NSApplicationDelegate {
 
   private var statusItem: NSStatusItem?
+  private var statusMenu: NSMenu?
   private var hotKeyManager: HotKeyManager?
   private var launchAtLoginItem: NSMenuItem?
   private var showHistoryMenuItem: NSMenuItem?
@@ -38,6 +39,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationWillTerminate(_ notification: Notification) {
     NotificationCenter.default.removeObserver(self)
     ClipboardManager.shared.stopMonitoring()
+  }
+
+  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool
+  {
+    showStatusMenu(after: 0)
+    return false
   }
 
   // MARK: - Status Bar
@@ -82,6 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       NSMenuItem(
         title: NSLocalizedString("menu.quit", comment: ""),
         action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+    statusMenu = menu
     statusItem?.menu = menu
   }
 
@@ -103,8 +111,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   private func openStatusMenuOnLaunch() {
-    DispatchQueue.main.async { [weak self] in
-      self?.statusItem?.button?.performClick(nil)
+    showStatusMenu(after: 0.1)
+  }
+
+  private func showStatusMenu(after delay: TimeInterval) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+      guard let self, let statusItem = self.statusItem, let statusMenu = self.statusMenu else {
+        return
+      }
+
+      statusItem.popUpMenu(statusMenu)
     }
   }
 
