@@ -34,11 +34,6 @@ jobs:
             exit 1
           fi
 
-          if [[ "$(git cat-file -t "refs/tags/$TAG_NAME")" != "tag" ]]; then
-            echo "Release tags must be annotated: $TAG_NAME" >&2
-            exit 1
-          fi
-
       - name: Extract release metadata
         id: metadata
         env:
@@ -49,11 +44,18 @@ jobs:
 
           version="${TAG_NAME#v}"
           notes_file="$RUNNER_TEMP/release-notes.md"
-          git tag -l --format='%(contents)' "$TAG_NAME" > "$notes_file"
+          if git rev-parse -q --verify "refs/tags/$TAG_NAME^{tag}" >/dev/null; then
+            git for-each-ref --format='%(contents)' "refs/tags/$TAG_NAME" > "$notes_file"
+          else
+            {
+              echo "Release $TAG_NAME"
+              echo
+              echo "Commit: $(git rev-list -n 1 "$TAG_NAME")"
+            } > "$notes_file"
+          fi
 
           if [[ ! -s "$notes_file" ]]; then
-            echo "Annotated tag message is required for release notes" >&2
-            exit 1
+            echo "Release $TAG_NAME" > "$notes_file"
           fi
 
           {
