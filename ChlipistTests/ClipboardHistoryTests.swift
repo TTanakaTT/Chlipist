@@ -4,6 +4,31 @@ import XCTest
 @testable import Chlipist
 
 final class ClipboardHistoryTests: XCTestCase {
+  func testInitialPositioningItemUsesFirstEnabledMenuItem() {
+    let menu = NSMenu()
+    let disabledItem = NSMenuItem(title: "Disabled", action: nil, keyEquivalent: "")
+    disabledItem.isEnabled = false
+    let firstEnabledItem = NSMenuItem(title: "First", action: nil, keyEquivalent: "")
+    let secondEnabledItem = NSMenuItem(title: "Second", action: nil, keyEquivalent: "")
+
+    menu.addItem(disabledItem)
+    menu.addItem(firstEnabledItem)
+    menu.addItem(secondEnabledItem)
+
+    let positioningItem = ClipboardHistoryWindowController.initialPositioningItem(in: menu)
+
+    XCTAssertTrue(positioningItem === firstEnabledItem)
+  }
+
+  func testInitialPositioningItemReturnsNilWhenMenuHasNoEnabledItems() {
+    let menu = NSMenu()
+    let disabledItem = NSMenuItem(title: "Disabled", action: nil, keyEquivalent: "")
+    disabledItem.isEnabled = false
+    menu.addItem(disabledItem)
+
+    XCTAssertNil(ClipboardHistoryWindowController.initialPositioningItem(in: menu))
+  }
+
   func testUpdatedHistoryAddsNewestItemToFront() {
     let history = ClipboardHistory.updatedHistory(
       afterRecording: "third",

@@ -135,9 +135,13 @@ final class ClipboardHistoryWindowController: NSObject, NSMenuDelegate {
 
     self.anchorWindow = anchorWindow
     anchorWindow.orderFrontRegardless()
-    menu.popUp(positioning: nil, at: .zero, in: anchorView)
+    menu.popUp(positioning: Self.initialPositioningItem(in: menu), at: .zero, in: anchorView)
     anchorWindow.orderOut(nil)
     self.anchorWindow = nil
+  }
+
+  static func initialPositioningItem(in menu: NSMenu) -> NSMenuItem? {
+    menu.items.first { $0.isEnabled }
   }
 
   @objc private func selectHistoryItem(_ sender: NSMenuItem) {
