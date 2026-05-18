@@ -16,8 +16,20 @@
 		AA00000000000020 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000016 /* Carbon.framework */; };
 		AA00000000000021 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000022 /* ServiceManagement.framework */; };
 		AA00000000000023 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000060 /* Localizable.strings */; };
-		AA00000000000024 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000061 /* InfoPlist.strings */; };
+		AA00000000000025 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000066 /* ClipboardHistory.swift */; };
+		AA00000000000026 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000067 /* ClipboardHistoryTests.swift */; };
+		AA00000000000027 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000069 /* XCTest.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA0000000000006F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA00000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000002C;
+			remoteInfo = Chlipist;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AA00000000000010 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -29,12 +41,14 @@
 		AA00000000000016 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		AA00000000000022 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 		AA00000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA00000000000018 /* chlipist.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chlipist.entitlements; sourceTree = "<group>"; };
-		AA00000000000019 /* chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000018 /* Chlipist.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chlipist.entitlements; sourceTree = "<group>"; };
+		AA00000000000019 /* Chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000062 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AA00000000000063 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AA00000000000064 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		AA00000000000065 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		AA00000000000066 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
+		AA00000000000067 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryTests.swift; sourceTree = "<group>"; };
+		AA00000000000068 /* ChlipistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChlipistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000069 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,13 +61,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000006B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA00000000000027 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		AA0000000000002B /* MainGroup */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000000000002F /* chlipist */,
+				AA0000000000002F /* Chlipist */,
+				AA0000000000006A /* ChlipistTests */,
 				AA00000000000030 /* Frameworks */,
 				AA00000000000031 /* Products */,
 			);
@@ -62,26 +85,35 @@
 		AA00000000000031 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA00000000000019 /* chlipist.app */,
+				AA00000000000019 /* Chlipist.app */,
+				AA00000000000068 /* ChlipistTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AA0000000000002F /* chlipist */ = {
+		AA0000000000002F /* Chlipist */ = {
 			isa = PBXGroup;
 			children = (
 				AA00000000000010 /* main.swift */,
 				AA00000000000011 /* AppDelegate.swift */,
 				AA00000000000012 /* ClipboardManager.swift */,
+				AA00000000000066 /* ClipboardHistory.swift */,
 				AA00000000000013 /* HotKeyManager.swift */,
 				AA00000000000014 /* ClipboardHistoryWindowController.swift */,
 				AA00000000000015 /* Assets.xcassets */,
 				AA00000000000060 /* Localizable.strings */,
-				AA00000000000061 /* InfoPlist.strings */,
 				AA00000000000017 /* Info.plist */,
-				AA00000000000018 /* chlipist.entitlements */,
+				AA00000000000018 /* Chlipist.entitlements */,
 			);
-			path = chlipist;
+			path = Chlipist;
+			sourceTree = "<group>";
+		};
+		AA0000000000006A /* ChlipistTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000000000067 /* ClipboardHistoryTests.swift */,
+			);
+			path = ChlipistTests;
 			sourceTree = "<group>";
 		};
 		AA00000000000030 /* Frameworks */ = {
@@ -89,6 +121,7 @@
 			children = (
 				AA00000000000016 /* Carbon.framework */,
 				AA00000000000022 /* ServiceManagement.framework */,
+				AA00000000000069 /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -105,21 +138,12 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
-		AA00000000000061 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				AA00000000000064 /* en */,
-				AA00000000000065 /* ja */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA0000000000002C /* chlipist */ = {
+		AA0000000000002C /* Chlipist */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA00000000000040 /* Build configuration list for PBXNativeTarget "chlipist" */;
+			buildConfigurationList = AA00000000000040 /* Build configuration list for PBXNativeTarget "Chlipist" */;
 			buildPhases = (
 				AA0000000000002D /* Sources */,
 				AA0000000000002A /* Frameworks */,
@@ -129,10 +153,28 @@
 			);
 			dependencies = (
 			);
-			name = chlipist;
-			productName = chlipist;
-			productReference = AA00000000000019 /* chlipist.app */;
+			name = Chlipist;
+			productName = Chlipist;
+			productReference = AA00000000000019 /* Chlipist.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AA0000000000006E /* ChlipistTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000071 /* Build configuration list for PBXNativeTarget "ChlipistTests" */;
+			buildPhases = (
+				AA0000000000006D /* Sources */,
+				AA0000000000006B /* Frameworks */,
+				AA0000000000006C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA00000000000070 /* PBXTargetDependency */,
+			);
+			name = ChlipistTests;
+			productName = ChlipistTests;
+			productReference = AA00000000000068 /* ChlipistTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -147,9 +189,13 @@
 					AA0000000000002C = {
 						CreatedOnToolsVersion = 15.0;
 					};
+					AA0000000000006E = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = AA0000000000002C;
+					};
 				};
 			};
-			buildConfigurationList = AA00000000000041 /* Build configuration list for PBXProject "chlipist" */;
+			buildConfigurationList = AA00000000000041 /* Build configuration list for PBXProject "Chlipist" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -163,7 +209,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA0000000000002C /* chlipist */,
+				AA0000000000002C /* Chlipist */,
+				AA0000000000006E /* ChlipistTests */,
 			);
 		};
 /* End PBXProject section */
@@ -175,7 +222,13 @@
 			files = (
 				AA0000000000001F /* Assets.xcassets in Resources */,
 				AA00000000000023 /* Localizable.strings in Resources */,
-				AA00000000000024 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000006C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,12 +242,29 @@
 				AA0000000000001A /* main.swift in Sources */,
 				AA0000000000001B /* AppDelegate.swift in Sources */,
 				AA0000000000001C /* ClipboardManager.swift in Sources */,
+				AA00000000000025 /* ClipboardHistory.swift in Sources */,
 				AA0000000000001D /* HotKeyManager.swift in Sources */,
 				AA0000000000001E /* ClipboardHistoryWindowController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000006D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA00000000000026 /* ClipboardHistoryTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA00000000000070 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000002C /* Chlipist */;
+			targetProxy = AA0000000000006F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA00000000000050 /* Debug (Project) */ = {
@@ -314,20 +384,22 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = chlipist/chlipist.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Chlipist/Chlipist.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = chlipist/Info.plist;
+				INFOPLIST_FILE = Chlipist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipist";
+				MARKETING_VERSION = 0.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Chlipist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -340,20 +412,22 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = chlipist/chlipist.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Chlipist/Chlipist.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = chlipist/Info.plist;
+				INFOPLIST_FILE = Chlipist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.chlipist";
+				MARKETING_VERSION = 0.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Chlipist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -361,10 +435,54 @@
 			};
 			name = Release;
 		};
+		AA00000000000072 /* Debug (Tests) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ChlipistTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Chlipist";
+			};
+			name = Debug;
+		};
+		AA00000000000073 /* Release (Tests) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.ChlipistTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Chlipist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Chlipist";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA00000000000041 /* Build configuration list for PBXProject "chlipist" */ = {
+		AA00000000000041 /* Build configuration list for PBXProject "Chlipist" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA00000000000050 /* Debug (Project) */,
@@ -373,11 +491,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA00000000000040 /* Build configuration list for PBXNativeTarget "chlipist" */ = {
+		AA00000000000040 /* Build configuration list for PBXNativeTarget "Chlipist" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA00000000000052 /* Debug (Target) */,
 				AA00000000000053 /* Release (Target) */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000071 /* Build configuration list for PBXNativeTarget "ChlipistTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000072 /* Debug (Tests) */,
+				AA00000000000073 /* Release (Tests) */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

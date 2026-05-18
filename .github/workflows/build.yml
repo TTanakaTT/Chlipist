@@ -14,46 +14,29 @@ jobs:
     runs-on: macos-latest
     env:
       DERIVED_DATA_PATH: ./.build
-      APP_PATH: ./.build/Build/Products/Release/chlipist.app
+      APP_PATH: ./.build/Build/Products/Release/Chlipist.app
       DMG_STAGING_PATH: ./.build/dmg
-      DMG_PATH: ./chlipist.dmg
-      DMG_VOLUME_NAME: chlipist
+      DMG_PATH: ./Chlipist.dmg
+      DMG_VOLUME_NAME: Chlipist
     steps:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Build Release app
         run: |
-          xcodebuild -project chlipist.xcodeproj \
-                     -scheme chlipist \
-                     -configuration Release \
-                     -derivedDataPath "$DERIVED_DATA_PATH" \
-                     CODE_SIGN_IDENTITY="" \
-                     CODE_SIGNING_REQUIRED=NO \
-                     CODE_SIGNING_ALLOWED=NO \
-                     build
+          make build \
+            DERIVED_DATA_PATH="$DERIVED_DATA_PATH"
 
       - name: Re-sign app bundle with ad-hoc identity
         run: |
-          set -euo pipefail
-          codesign --force --deep --sign - "$APP_PATH"
-          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          sh ./scripts/resign-app.sh "$APP_PATH"
 
       - name: Archive DMG
         run: |
-          set -euo pipefail
-          rm -rf "$DMG_STAGING_PATH"
-          rm -f "$DMG_PATH"
-          mkdir -p "$DMG_STAGING_PATH"
-          cp -R "$APP_PATH" "$DMG_STAGING_PATH/chlipist.app"
-          ln -s /Applications "$DMG_STAGING_PATH/Drag To Applications"
-
-          hdiutil create \
-            -volname "$DMG_VOLUME_NAME" \
-            -srcfolder "$DMG_STAGING_PATH" \
-            -ov \
-            -format UDZO \
-            "$DMG_PATH"
-          hdiutil verify "$DMG_PATH"
+          sh ./scripts/create-dmg.sh \
+            "$APP_PATH" \
+            "$DMG_STAGING_PATH" \
+            "$DMG_PATH" \
+            "$DMG_VOLUME_NAME"
 
       - name: Summarize artifact status
         run: |
@@ -67,6 +50,6 @@ jobs:
       - name: Upload app artifact
         uses: actions/upload-artifact@v7
         with:
-          name: chlipist-dmg
-          path: ./chlipist.dmg
+          name: Chlipist-dmg
+          path: ./Chlipist.dmg
           if-no-files-found: error

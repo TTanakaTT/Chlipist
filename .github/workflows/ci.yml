@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: macos-latest
+    env:
+      DERIVED_DATA_PATH: ./.build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Lint Swift sources
+        run: make lint
+
+      - name: Run unit tests
+        run: |
+          xcodebuild -project Chlipist.xcodeproj \
+                     -scheme Chlipist \
+                     -destination 'platform=macOS' \
+                     -derivedDataPath "$DERIVED_DATA_PATH" \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO \
+                     test
