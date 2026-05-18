@@ -1,5 +1,4 @@
 "app.name" = "Chlipist";
-"status.tooltip" = "Chlipist – クリップボード履歴";
 "menu.launchAtLogin" = "ログイン時に起動";
 "menu.showHistory" = "履歴を表示 (⌘⇧V)";
 "menu.clearHistory" = "履歴を消去";

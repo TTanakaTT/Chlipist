@@ -1,5 +1,4 @@
 "app.name" = "Chlipist";
-"status.tooltip" = "Chlipist – Clipboard History";
 "menu.launchAtLogin" = "Launch at Login";
 "menu.showHistory" = "Show History (⌘⇧V)";
 "menu.clearHistory" = "Clear History";

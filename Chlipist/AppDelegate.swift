@@ -45,8 +45,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       button.title = "📋"
     }
 
-    button.toolTip = NSLocalizedString("status.tooltip", comment: "")
-
     let launchItem = NSMenuItem(
       title: NSLocalizedString("menu.launchAtLogin", comment: ""),
       action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
