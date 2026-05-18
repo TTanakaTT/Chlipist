@@ -35,7 +35,7 @@ rsync -av ./.build/Build/Products/Release/Chlipist.app /Applications
 
 ## Formatting and Linting
 
-This repository uses the default `swift-format` rules via `make`.
+This repository uses `swift-format` rules via `make`.
 
 ```bash
 make format
@@ -43,14 +43,14 @@ make lint
 ```
 
 - `make format` rewrites Swift files in `Chlipist` and `ChlipistTests`.
-- `make lint` checks the same paths with `swift-format lint --strict`.
-- CI uses the same `make lint` target before test and build jobs.
+- `make lint` checks paths with `swift-format lint --strict`.
+- CI uses a `make lint` target before test.
 
 `Makefile` invokes `xcrun swift-format`, so you need an Xcode toolchain that includes `swift-format`.
 
 ### Git Hook
 
-To run the same formatting and linting checks before each commit, enable the repository-managed hook:
+To run the formatting and linting checks before each commit, enable the repository-managed hook:
 
 ```bash
 git config core.hooksPath .githooks
