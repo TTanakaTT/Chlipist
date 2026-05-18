@@ -12,7 +12,7 @@ CODE_SIGN_IDENTITY ?=
 CODE_SIGNING_REQUIRED ?= NO
 CODE_SIGNING_ALLOWED ?= NO
 
-.PHONY: format lint check build-release-app
+.PHONY: format lint check build
 
 format:
 	$(SWIFT_FORMAT) format --in-place --parallel --recursive $(FILES)
