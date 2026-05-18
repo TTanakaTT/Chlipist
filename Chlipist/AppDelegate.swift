@@ -2,13 +2,15 @@ import ApplicationServices
 import Cocoa
 import ServiceManagement
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
   private var statusItem: NSStatusItem?
   private var statusMenu: NSMenu?
   private var hotKeyManager: HotKeyManager?
   private var launchAtLoginItem: NSMenuItem?
   private var showHistoryMenuItem: NSMenuItem?
+  private var hotKeySuspensionCount = 0
+  private var isHistoryPanelActive = false
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     // Hide the app from the Dock (LSUIElement handles this at launch,
@@ -24,6 +26,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       selector: #selector(handleClipboardHistoryDidChange),
       name: .clipboardHistoryDidChange,
       object: ClipboardManager.shared
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleHistoryHotKeyPressed),
+      name: .historyHotKeyPressed,
+      object: nil
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleHistoryMenuWillOpen),
+      name: .clipboardHistoryMenuWillOpen,
+      object: nil
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleHistoryMenuDidClose),
+      name: .clipboardHistoryMenuDidClose,
+      object: nil
     )
 
     setupStatusBarItem()
@@ -68,6 +88,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     launchAtLoginItem = launchItem
 
     let menu = NSMenu()
+    menu.delegate = self
     let pasteItem = NSMenuItem(
       title: "",
       action: #selector(showHistory),
@@ -92,7 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   @objc private func showHistory() {
-    ClipboardHistoryWindowController.shared.showPanel()
+    presentHistoryPanel()
   }
 
   @objc private func clearHistory() {
@@ -103,9 +124,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     updateShowHistoryMenuItemTitle()
   }
 
+  @objc private func handleHistoryHotKeyPressed(_ notification: Notification) {
+    presentHistoryPanel()
+  }
+
+  @objc private func handleHistoryMenuWillOpen(_ notification: Notification) {
+    suspendGlobalHotKey()
+  }
+
+  @objc private func handleHistoryMenuDidClose(_ notification: Notification) {
+    DispatchQueue.main.async { [weak self] in
+      guard let self else { return }
+      self.isHistoryPanelActive = false
+      self.resumeGlobalHotKey()
+    }
+  }
+
   private func updateShowHistoryMenuItemTitle() {
     let key = ClipboardManager.shared.history.isEmpty ? "menu.copyPrompt" : "menu.showHistory"
     showHistoryMenuItem?.title = NSLocalizedString(key, comment: "")
+  }
+
+  private func presentHistoryPanel() {
+    guard !isHistoryPanelActive else { return }
+
+    isHistoryPanelActive = true
+    ClipboardHistoryWindowController.shared.showPanel()
   }
 
   private func showStatusMenu() {
@@ -114,6 +158,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     statusItem.popUpMenu(statusMenu)
+  }
+
+  private func suspendGlobalHotKey() {
+    hotKeySuspensionCount += 1
+
+    if hotKeySuspensionCount == 1 {
+      hotKeyManager?.unregister()
+    }
+  }
+
+  private func resumeGlobalHotKey() {
+    guard hotKeySuspensionCount > 0 else { return }
+
+    hotKeySuspensionCount -= 1
+
+    if hotKeySuspensionCount == 0 {
+      hotKeyManager?.register()
+    }
+  }
+
+  func menuWillOpen(_ menu: NSMenu) {
+    guard menu === statusMenu else { return }
+    suspendGlobalHotKey()
+  }
+
+  func menuDidClose(_ menu: NSMenu) {
+    guard menu === statusMenu else { return }
+    resumeGlobalHotKey()
   }
 
   // MARK: - Launch at Login
