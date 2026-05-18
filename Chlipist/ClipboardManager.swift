@@ -15,7 +15,11 @@ final class ClipboardManager {
   // MARK: - Public State
 
   /// Ordered clipboard history — newest entry at index 0.
-  private(set) var history: [String] = []
+  private(set) var history: [String] = [] {
+    didSet {
+      NotificationCenter.default.post(name: .clipboardHistoryDidChange, object: self)
+    }
+  }
 
   /// Maximum number of history entries to keep.
   let maxHistoryCount = 50
@@ -312,6 +316,10 @@ final class ClipboardManager {
   private func isCocoaError(_ error: NSError, code: Int) -> Bool {
     error.domain == NSCocoaErrorDomain && error.code == code
   }
+}
+
+extension Notification.Name {
+  static let clipboardHistoryDidChange = Notification.Name("ClipboardManager.historyDidChange")
 }
 
 private enum ClipboardManagerKeychainError: Error {

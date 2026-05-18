@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusItem: NSStatusItem?
   private var hotKeyManager: HotKeyManager?
   private var launchAtLoginItem: NSMenuItem?
+  private var showHistoryMenuItem: NSMenuItem?
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     // Hide the app from the Dock (LSUIElement handles this at launch,
@@ -17,15 +18,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Start workspace app tracking before the status item can open the history menu.
     _ = ClipboardHistoryWindowController.shared
 
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(handleClipboardHistoryDidChange),
+      name: .clipboardHistoryDidChange,
+      object: ClipboardManager.shared
+    )
+
     setupStatusBarItem()
     checkAccessibilityPermission()
     ClipboardManager.shared.startMonitoring()
 
     hotKeyManager = HotKeyManager()
     hotKeyManager?.register()
+
+    openStatusMenuOnLaunch()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
+    NotificationCenter.default.removeObserver(self)
     ClipboardManager.shared.stopMonitoring()
   }
 
@@ -53,10 +64,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     let menu = NSMenu()
     let pasteItem = NSMenuItem(
-      title: NSLocalizedString("menu.showHistory", comment: ""),
+      title: "",
       action: #selector(showHistory),
       keyEquivalent: "v")
     pasteItem.keyEquivalentModifierMask = [.command, .shift]
+    showHistoryMenuItem = pasteItem
+    updateShowHistoryMenuItemTitle()
     menu.addItem(pasteItem)
     menu.addItem(
       NSMenuItem(
@@ -78,6 +91,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc private func clearHistory() {
     ClipboardManager.shared.clearHistory()
+  }
+
+  @objc private func handleClipboardHistoryDidChange(_ notification: Notification) {
+    updateShowHistoryMenuItemTitle()
+  }
+
+  private func updateShowHistoryMenuItemTitle() {
+    let key = ClipboardManager.shared.history.isEmpty ? "menu.copyPrompt" : "menu.showHistory"
+    showHistoryMenuItem?.title = NSLocalizedString(key, comment: "")
+  }
+
+  private func openStatusMenuOnLaunch() {
+    DispatchQueue.main.async { [weak self] in
+      self?.statusItem?.button?.performClick(nil)
+    }
   }
 
   // MARK: - Launch at Login

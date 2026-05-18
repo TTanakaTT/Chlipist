@@ -1,6 +1,7 @@
 "app.name" = "Chlipist";
 "menu.launchAtLogin" = "Launch at Login";
 "menu.showHistory" = "Paste";
+"menu.copyPrompt" = "Copy something first";
 "menu.clearHistory" = "Clear History";
 "menu.quit" = "Quit Chlipist";
 "alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
