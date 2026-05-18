@@ -7,7 +7,7 @@ private let maxMenuItemCharacters = 30
 /// Maximum total characters shown for a menu item tooltip.
 private let maxMenuItemTooltipCharacters = 200
 
-final class ClipboardHistoryWindowController: NSObject {
+final class ClipboardHistoryWindowController: NSObject, NSMenuDelegate {
 
   static let shared = ClipboardHistoryWindowController()
   private static let shortcutKeyEquivalents = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
@@ -60,6 +60,7 @@ final class ClipboardHistoryWindowController: NSObject {
   private func buildMenu(from history: [String]) -> NSMenu {
     let menu = NSMenu()
     menu.autoenablesItems = false
+    menu.delegate = self
 
     guard !history.isEmpty else {
       let item = NSMenuItem(
@@ -90,6 +91,14 @@ final class ClipboardHistoryWindowController: NSObject {
     }
 
     return menu
+  }
+
+  func menuWillOpen(_ menu: NSMenu) {
+    NotificationCenter.default.post(name: .clipboardHistoryMenuWillOpen, object: menu)
+  }
+
+  func menuDidClose(_ menu: NSMenu) {
+    NotificationCenter.default.post(name: .clipboardHistoryMenuDidClose, object: menu)
   }
 
   private func historyItem(for item: String, keyEquivalent: String) -> NSMenuItem {
@@ -126,9 +135,13 @@ final class ClipboardHistoryWindowController: NSObject {
 
     self.anchorWindow = anchorWindow
     anchorWindow.orderFrontRegardless()
-    menu.popUp(positioning: nil, at: .zero, in: anchorView)
+    menu.popUp(positioning: Self.initialPositioningItem(in: menu), at: .zero, in: anchorView)
     anchorWindow.orderOut(nil)
     self.anchorWindow = nil
+  }
+
+  static func initialPositioningItem(in menu: NSMenu) -> NSMenuItem? {
+    menu.items.first { $0.isEnabled }
   }
 
   @objc private func selectHistoryItem(_ sender: NSMenuItem) {
@@ -159,6 +172,13 @@ final class ClipboardHistoryWindowController: NSObject {
     keyUp?.flags = .maskCommand
     keyUp?.post(tap: .cghidEventTap)
   }
+}
+
+extension Notification.Name {
+  static let clipboardHistoryMenuWillOpen = Notification.Name(
+    "ClipboardHistoryWindowController.menuWillOpen")
+  static let clipboardHistoryMenuDidClose = Notification.Name(
+    "ClipboardHistoryWindowController.menuDidClose")
 }
 
 private final class MenuAnchorWindow: NSWindow {

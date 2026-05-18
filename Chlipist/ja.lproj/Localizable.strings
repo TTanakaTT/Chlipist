@@ -1,7 +1,7 @@
 "app.name" = "Chlipist";
-"status.tooltip" = "Chlipist – クリップボード履歴";
 "menu.launchAtLogin" = "ログイン時に起動";
-"menu.showHistory" = "履歴を表示 (⌘⇧V)";
+"menu.showHistory" = "ペースト";
+"menu.copyPrompt" = "コピーしてください";
 "menu.clearHistory" = "履歴を消去";
 "menu.quit" = "Chlipist を終了";
 "alert.launchAtLoginFailed.title" = "ログイン時に起動の設定に失敗しました";

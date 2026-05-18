@@ -12,7 +12,7 @@ private func historyHotKeyHandler(
   _ userData: UnsafeMutableRawPointer?
 ) -> OSStatus {
   DispatchQueue.main.async {
-    ClipboardHistoryWindowController.shared.showPanel()
+    NotificationCenter.default.post(name: .historyHotKeyPressed, object: nil)
   }
   return noErr
 }
@@ -26,11 +26,14 @@ final class HotKeyManager {
 
   private var hotKeyRef: EventHotKeyRef?
   private var eventHandlerRef: EventHandlerRef?
+  private(set) var isRegistered = false
 
   /// Four-char signature for this app: 'CHLP' = 0x43_48_4C_50.
   private let hotKeySignature: OSType = 0x4348_4C50
 
   func register() {
+    guard !isRegistered else { return }
+
     var hotKeyID = EventHotKeyID()
     hotKeyID.signature = hotKeySignature
     hotKeyID.id = 1
@@ -58,7 +61,7 @@ final class HotKeyManager {
       eventKind: UInt32(kEventHotKeyPressed)
     )
 
-    InstallEventHandler(
+    let installStatus = InstallEventHandler(
       GetApplicationEventTarget(),
       historyHotKeyHandler,  // plain C function pointer — no captures
       1,
@@ -66,10 +69,38 @@ final class HotKeyManager {
       nil,
       &eventHandlerRef
     )
+
+    guard installStatus == noErr else {
+      NSLog("HotKeyManager: InstallEventHandler failed (%d)", installStatus)
+      if let ref = hotKeyRef {
+        UnregisterEventHotKey(ref)
+        hotKeyRef = nil
+      }
+      return
+    }
+
+    isRegistered = true
+  }
+
+  func unregister() {
+    if let ref = hotKeyRef {
+      UnregisterEventHotKey(ref)
+      hotKeyRef = nil
+    }
+
+    if let ref = eventHandlerRef {
+      RemoveEventHandler(ref)
+      eventHandlerRef = nil
+    }
+
+    isRegistered = false
   }
 
   deinit {
-    if let ref = hotKeyRef { UnregisterEventHotKey(ref) }
-    if let ref = eventHandlerRef { RemoveEventHandler(ref) }
+    unregister()
   }
+}
+
+extension Notification.Name {
+  static let historyHotKeyPressed = Notification.Name("HotKeyManager.historyHotKeyPressed")
 }

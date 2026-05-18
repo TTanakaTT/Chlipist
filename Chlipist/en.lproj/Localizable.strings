@@ -1,7 +1,7 @@
 "app.name" = "Chlipist";
-"status.tooltip" = "Chlipist – Clipboard History";
 "menu.launchAtLogin" = "Launch at Login";
-"menu.showHistory" = "Show History (⌘⇧V)";
+"menu.showHistory" = "Paste";
+"menu.copyPrompt" = "Copy something first";
 "menu.clearHistory" = "Clear History";
 "menu.quit" = "Quit Chlipist";
 "alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
