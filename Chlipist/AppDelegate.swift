@@ -52,10 +52,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     launchAtLoginItem = launchItem
 
     let menu = NSMenu()
-    menu.addItem(
-      NSMenuItem(
-        title: NSLocalizedString("menu.showHistory", comment: ""), action: #selector(showHistory),
-        keyEquivalent: ""))
+    let pasteItem = NSMenuItem(
+      title: NSLocalizedString("menu.showHistory", comment: ""),
+      action: #selector(showHistory),
+      keyEquivalent: "v")
+    pasteItem.keyEquivalentModifierMask = [.command, .shift]
+    menu.addItem(pasteItem)
     menu.addItem(
       NSMenuItem(
         title: NSLocalizedString("menu.clearHistory", comment: ""), action: #selector(clearHistory),

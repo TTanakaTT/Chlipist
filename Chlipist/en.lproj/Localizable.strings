@@ -1,6 +1,6 @@
 "app.name" = "Chlipist";
 "menu.launchAtLogin" = "Launch at Login";
-"menu.showHistory" = "Show History (⌘⇧V)";
+"menu.showHistory" = "Paste";
 "menu.clearHistory" = "Clear History";
 "menu.quit" = "Quit Chlipist";
 "alert.launchAtLoginFailed.title" = "Couldn't change Launch at Login";
