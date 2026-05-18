@@ -32,8 +32,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     hotKeyManager = HotKeyManager()
     hotKeyManager?.register()
-
-    openStatusMenuOnLaunch()
   }
 
   func applicationWillTerminate(_ notification: Notification) {
@@ -43,7 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool
   {
-    showStatusMenu(after: 0)
+    showStatusMenu()
     return false
   }
 
@@ -110,18 +108,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     showHistoryMenuItem?.title = NSLocalizedString(key, comment: "")
   }
 
-  private func openStatusMenuOnLaunch() {
-    showStatusMenu(after: 0.1)
-  }
-
-  private func showStatusMenu(after delay: TimeInterval) {
-    DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-      guard let self, let statusItem = self.statusItem, let statusMenu = self.statusMenu else {
-        return
-      }
-
-      statusItem.popUpMenu(statusMenu)
+  private func showStatusMenu() {
+    guard let statusItem = statusItem, let statusMenu = statusMenu else {
+      return
     }
+
+    statusItem.popUpMenu(statusMenu)
   }
 
   // MARK: - Launch at Login
