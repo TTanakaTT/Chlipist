@@ -1,35 +1,39 @@
 import Carbon
 import Cocoa
 
-// MARK: - C-compatible hotkey callback (file-scope free function)
+protocol HotKeyServiceDelegate: AnyObject {
+  func hotKeyDidPress()
+}
 
-/// Top-level free function used as the Carbon event handler.
-/// Being a named free function (not a closure) guarantees it is treated as
-/// a plain C function pointer by the compiler — no captures needed.
-private func historyHotKeyHandler(
+protocol HotKeyServiceProtocol: AnyObject {
+  var delegate: HotKeyServiceDelegate? { get set }
+  func register()
+  func unregister()
+}
+
+// MARK: - C-compatible hotkey callback
+
+private func hotKeyHandler(
   _ callRef: EventHandlerCallRef?,
   _ event: EventRef?,
   _ userData: UnsafeMutableRawPointer?
 ) -> OSStatus {
+  guard let userData = userData else { return noErr }
+  let service = Unmanaged<HotKeyService>.fromOpaque(userData).takeUnretainedValue()
+
   DispatchQueue.main.async {
-    NotificationCenter.default.post(name: .historyHotKeyPressed, object: nil)
+    service.delegate?.hotKeyDidPress()
   }
   return noErr
 }
 
-// MARK: - HotKeyManager
-
-/// Registers a global ⌘⇧V hotkey using the Carbon Event Manager.
-/// Unlike NSEvent.addGlobalMonitorForEvents, Carbon hotkeys do NOT require
-/// Accessibility permission — they work out of the box.
-final class HotKeyManager {
+final class HotKeyService: HotKeyServiceProtocol {
+  weak var delegate: HotKeyServiceDelegate?
 
   private var hotKeyRef: EventHotKeyRef?
   private var eventHandlerRef: EventHandlerRef?
   private(set) var isRegistered = false
-
-  /// Four-char signature for this app: 'CHLP' = 0x43_48_4C_50.
-  private let hotKeySignature: OSType = 0x4348_4C50
+  private let hotKeySignature: OSType = 0x4348_4C50  // 'CHLP'
 
   func register() {
     guard !isRegistered else { return }
@@ -38,9 +42,10 @@ final class HotKeyManager {
     hotKeyID.signature = hotKeySignature
     hotKeyID.id = 1
 
-    // ⌘ + ⇧ + V
     let modifiers = UInt32(cmdKey | shiftKey)
     let keyCode = UInt32(kVK_ANSI_V)
+
+    let userData = Unmanaged.passUnretained(self).toOpaque()
 
     let status = RegisterEventHotKey(
       keyCode,
@@ -52,7 +57,6 @@ final class HotKeyManager {
     )
 
     guard status == noErr else {
-      NSLog("HotKeyManager: RegisterEventHotKey failed (%d)", status)
       return
     }
 
@@ -63,15 +67,14 @@ final class HotKeyManager {
 
     let installStatus = InstallEventHandler(
       GetApplicationEventTarget(),
-      historyHotKeyHandler,  // plain C function pointer — no captures
+      hotKeyHandler,
       1,
       &eventSpec,
-      nil,
+      userData,
       &eventHandlerRef
     )
 
-    guard installStatus == noErr else {
-      NSLog("HotKeyManager: InstallEventHandler failed (%d)", installStatus)
+    if installStatus != noErr {
       if let ref = hotKeyRef {
         UnregisterEventHotKey(ref)
         hotKeyRef = nil
@@ -99,8 +102,4 @@ final class HotKeyManager {
   deinit {
     unregister()
   }
-}
-
-extension Notification.Name {
-  static let historyHotKeyPressed = Notification.Name("HotKeyManager.historyHotKeyPressed")
 }
