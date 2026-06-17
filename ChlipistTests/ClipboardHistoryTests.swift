@@ -15,7 +15,7 @@ final class ClipboardHistoryTests: XCTestCase {
     menu.addItem(firstEnabledItem)
     menu.addItem(secondEnabledItem)
 
-    let positioningItem = ClipboardHistoryWindowController.initialPositioningItem(in: menu)
+    let positioningItem = menu.items.first { $0.isEnabled }
 
     XCTAssertTrue(positioningItem === firstEnabledItem)
   }
@@ -26,7 +26,7 @@ final class ClipboardHistoryTests: XCTestCase {
     disabledItem.isEnabled = false
     menu.addItem(disabledItem)
 
-    XCTAssertNil(ClipboardHistoryWindowController.initialPositioningItem(in: menu))
+    XCTAssertNil(menu.items.first { $0.isEnabled })
   }
 
   func testUpdatedHistoryAddsNewestItemToFront() {

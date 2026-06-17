@@ -9,16 +9,24 @@
 /* Begin PBXBuildFile section */
 		AA0000000000001A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000010 /* main.swift */; };
 		AA0000000000001B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000011 /* AppDelegate.swift */; };
-		AA0000000000001C /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000012 /* ClipboardManager.swift */; };
-		AA0000000000001D /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000013 /* HotKeyManager.swift */; };
-		AA0000000000001E /* ClipboardHistoryWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000014 /* ClipboardHistoryWindowController.swift */; };
+		AA0000000000001C /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000012 /* AppCoordinator.swift */; };
+		AA0000000000001D /* Services/HotKeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000013 /* Services/HotKeyService.swift */; };
+		AA0000000000001E /* UI/HistoryMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000014 /* UI/HistoryMenuController.swift */; };
 		AA0000000000001F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000015 /* Assets.xcassets */; };
 		AA00000000000020 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000016 /* Carbon.framework */; };
 		AA00000000000021 /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000022 /* ServiceManagement.framework */; };
 		AA00000000000023 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AA00000000000060 /* Localizable.strings */; };
-		AA00000000000025 /* ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000066 /* ClipboardHistory.swift */; };
+		AA00000000000025 /* Models/ClipboardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000066 /* Models/ClipboardHistory.swift */; };
 		AA00000000000026 /* ClipboardHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000067 /* ClipboardHistoryTests.swift */; };
 		AA00000000000027 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA00000000000069 /* XCTest.framework */; };
+		BB00000000000001F /* ClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000001 /* ClipboardService.swift */; };
+		BB00000000000002F /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000002 /* PersistenceService.swift */; };
+		BB00000000000003F /* PasteboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000003 /* PasteboardMonitor.swift */; };
+		BB00000000000004F /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000004 /* StatusBarController.swift */; };
+		BB00000000000005F /* Robot.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000005 /* Robot.swift */; };
+		BB00000000000006F /* String+MenuDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000006 /* String+MenuDisplay.swift */; };
+		BB00000000000007F /* AccessibilityPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000007 /* AccessibilityPermission.swift */; };
+		BB00000000000008F /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00000000000008 /* LaunchAtLogin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,9 +42,9 @@
 /* Begin PBXFileReference section */
 		AA00000000000010 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		AA00000000000011 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		AA00000000000012 /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
-		AA00000000000013 /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
-		AA00000000000014 /* ClipboardHistoryWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryWindowController.swift; sourceTree = "<group>"; };
+		AA00000000000012 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		AA00000000000013 /* Services/HotKeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/HotKeyService.swift; sourceTree = "<group>"; };
+		AA00000000000014 /* UI/HistoryMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/HistoryMenuController.swift; sourceTree = "<group>"; };
 		AA00000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA00000000000016 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		AA00000000000022 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
@@ -45,10 +53,18 @@
 		AA00000000000019 /* Chlipist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chlipist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000062 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AA00000000000063 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AA00000000000066 /* ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistory.swift; sourceTree = "<group>"; };
+		AA00000000000066 /* Models/ClipboardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/ClipboardHistory.swift; sourceTree = "<group>"; };
 		AA00000000000067 /* ClipboardHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHistoryTests.swift; sourceTree = "<group>"; };
 		AA00000000000068 /* ChlipistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChlipistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA00000000000069 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
+		BB00000000000001 /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Services/ClipboardService.swift"; sourceTree = "<group>"; };
+		BB00000000000002 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Services/PersistenceService.swift"; sourceTree = "<group>"; };
+		BB00000000000003 /* PasteboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Services/PasteboardMonitor.swift"; sourceTree = "<group>"; };
+		BB00000000000004 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI/StatusBarController.swift"; sourceTree = "<group>"; };
+		BB00000000000005 /* Robot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utility/Robot.swift"; sourceTree = "<group>"; };
+		BB00000000000006 /* String+MenuDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utility/String+MenuDisplay.swift"; sourceTree = "<group>"; };
+		BB00000000000007 /* AccessibilityPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utility/AccessibilityPermission.swift"; sourceTree = "<group>"; };
+		BB00000000000008 /* LaunchAtLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utility/LaunchAtLogin.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,15 +112,23 @@
 			children = (
 				AA00000000000010 /* main.swift */,
 				AA00000000000011 /* AppDelegate.swift */,
-				AA00000000000012 /* ClipboardManager.swift */,
-				AA00000000000066 /* ClipboardHistory.swift */,
-				AA00000000000013 /* HotKeyManager.swift */,
-				AA00000000000014 /* ClipboardHistoryWindowController.swift */,
+				AA00000000000012 /* AppCoordinator.swift */,
+				AA00000000000066 /* Models/ClipboardHistory.swift */,
+				AA00000000000013 /* Services/HotKeyService.swift */,
+				AA00000000000014 /* UI/HistoryMenuController.swift */,
 				AA00000000000015 /* Assets.xcassets */,
 				AA00000000000060 /* Localizable.strings */,
 				AA00000000000017 /* Info.plist */,
 				AA00000000000018 /* Chlipist.entitlements */,
-			);
+							BB00000000000001 /* ClipboardService.swift */,
+				BB00000000000002 /* PersistenceService.swift */,
+				BB00000000000003 /* PasteboardMonitor.swift */,
+				BB00000000000004 /* StatusBarController.swift */,
+				BB00000000000005 /* Robot.swift */,
+				BB00000000000006 /* String+MenuDisplay.swift */,
+				BB00000000000007 /* AccessibilityPermission.swift */,
+				BB00000000000008 /* LaunchAtLogin.swift */,
+);
 			path = Chlipist;
 			sourceTree = "<group>";
 		};
@@ -241,11 +265,19 @@
 			files = (
 				AA0000000000001A /* main.swift in Sources */,
 				AA0000000000001B /* AppDelegate.swift in Sources */,
-				AA0000000000001C /* ClipboardManager.swift in Sources */,
-				AA00000000000025 /* ClipboardHistory.swift in Sources */,
-				AA0000000000001D /* HotKeyManager.swift in Sources */,
-				AA0000000000001E /* ClipboardHistoryWindowController.swift in Sources */,
-			);
+				AA0000000000001C /* AppCoordinator.swift in Sources */,
+				AA00000000000025 /* Models/ClipboardHistory.swift in Sources */,
+				AA0000000000001D /* Services/HotKeyService.swift in Sources */,
+				AA0000000000001E /* UI/HistoryMenuController.swift in Sources */,
+							BB00000000000001F /* ClipboardService.swift in Sources */,
+				BB00000000000002F /* PersistenceService.swift in Sources */,
+				BB00000000000003F /* PasteboardMonitor.swift in Sources */,
+				BB00000000000004F /* StatusBarController.swift in Sources */,
+				BB00000000000005F /* Robot.swift in Sources */,
+				BB00000000000006F /* String+MenuDisplay.swift in Sources */,
+				BB00000000000007F /* AccessibilityPermission.swift in Sources */,
+				BB00000000000008F /* LaunchAtLogin.swift in Sources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AA0000000000006D /* Sources */ = {
